@@ -18,24 +18,29 @@ export default function LandingPage() {
         {/* ROLE CARDS */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl w-full mb-10">
           
-          <div className="border rounded p-6">
-            <h2 className="font-semibold mb-2">🎓 Student</h2>
-            <p className="text-sm text-gray-600">
-              Understand your career stage and next steps
-            </p>
-          </div>
+          <Link
+          href="/student/assessment"
+          className="block border p-4 rounded hover:bg-gray-100">
+          <p className="font-medium">🎓 Career Assessment</p>
+          <p className="text-sm text-gray-600">
+          Understand your career clarity
+          </p>
+          </Link>
 
-          <div className="border rounded p-6">
-            <h2 className="font-semibold mb-2">🚀 Entrepreneur</h2>
+          <Link
+            href="/entrepreneur/stage"
+            className="block border p-4 rounded hover:bg-gray-100">
+            <p className="font-medium">🚀 Business Stage</p>
             <p className="text-sm text-gray-600">
-              Get clarity on your business stage and direction
+            Tell us where your business stands
             </p>
-          </div>
+          </Link>
 
-          <div className="border rounded p-6">
-            <h2 className="font-semibold mb-2">🧠 Mentor</h2>
-            <p className="text-sm text-gray-600">
-              Share experience and guide others (V1 limited)
+
+          <div className="border p-4 rounded bg-gray-50 opacity-70 cursor-not-allowed">
+          <p className="font-medium">🧠 Mentor Guidance</p>
+          <p className="text-sm text-gray-600">
+            Coming soon
             </p>
           </div>
 
