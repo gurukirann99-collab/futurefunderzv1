@@ -110,9 +110,18 @@ export default function EntrepreneurResultPage() {
           </ul>
         </div>
 
-        <div className="border-t pt-4 text-sm text-gray-600">
-          🚀 More tools like compliance, funding & mentors will unlock soon
-        </div>
+        <div className="border-t pt-4">
+  <p className="font-medium mb-2">
+    How FutureFunderz will help you next
+  </p>
+
+  <ul className="list-disc list-inside text-sm text-gray-600 space-y-1">
+    <li>Guidance based on your business stage</li>
+    <li>Structured compliance and funding paths</li>
+    <li>Mentor and expert access (post-V1)</li>
+  </ul>
+</div>
+
 
         <button
           onClick={() => router.push("/dashboard")}

@@ -43,6 +43,9 @@ export default function Navbar() {
             <Link href="/dashboard" className="hover:underline">
               Dashboard
             </Link>
+            <Link href="/profile" className="hover:underline">
+            Profile
+            </Link>
             <button
               onClick={logout}
               className="border px-3 py-1 rounded hover:bg-gray-100"
