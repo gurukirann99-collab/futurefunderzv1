@@ -8,17 +8,33 @@ import { supabase } from "@/lib/supabase";
 export default function Navbar() {
   const router = useRouter();
   const [loggedIn, setLoggedIn] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Initial session check
     supabase.auth.getSession().then(({ data }) => {
       setLoggedIn(!!data.session);
+      setLoading(false);
     });
+
+    // Listen to auth changes (THIS IS THE FIX)
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setLoggedIn(!!session);
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
   }, []);
 
   const logout = async () => {
     await supabase.auth.signOut();
     router.push("/login");
   };
+
+  if (loading) return null; // prevent flash
 
   return (
     <nav className="border-b px-6 py-3 flex items-center justify-between">
@@ -44,7 +60,7 @@ export default function Navbar() {
               Dashboard
             </Link>
             <Link href="/profile" className="hover:underline">
-            Profile
+              Profile
             </Link>
             <button
               onClick={logout}
