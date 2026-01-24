@@ -1,43 +1,48 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
 import BackButton from "@/app/components/BackButton";
-import { useEffect } from "react";
 
 export default function EntrepreneurStagePage() {
   const router = useRouter();
+
   const [stage, setStage] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-useEffect(() => {
-  const checkExisting = async () => {
-    const {
-      data: { session },
-    } = await supabase.auth.getSession();
+  // 🔹 Prevent duplicate submission (V1 rule)
+  useEffect(() => {
+    const checkExisting = async () => {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
 
-    if (!session) return;
+      if (!session) return;
 
-    const { data } = await supabase
-      .from("entrepreneur_stages")
-      .select("id")
-      .eq("user_id", session.user.id)
-      .limit(1);
+      const { data } = await supabase
+        .from("entrepreneur_stages")
+        .select("id")
+        .eq("user_id", session.user.id)
+        .maybeSingle();
 
-    if (data && data.length > 0) {
-      router.push("/entrepreneur/result");
-    }
-  };
+      if (data) {
+        router.replace("/entrepreneur/result");
+      }
+    };
 
-  checkExisting();
-}, [router]);
-
-
-
+    checkExisting();
+  }, [router]);
 
   const submitStage = async () => {
+    if (loading) return;
+
+    if (!stage) {
+      setError("Please select your business stage.");
+      return;
+    }
+
     setLoading(true);
     setError("");
 
@@ -51,22 +56,34 @@ useEffect(() => {
       return;
     }
 
-    const { error } = await supabase.from("entrepreneur_stages").insert({
-      user_id: session.user.id,
-      business_stage: stage,
-    });
+    // 1️⃣ Save current business stage
+    const { error: stageError } = await supabase
+      .from("entrepreneur_stages")
+      .insert({
+        user_id: session.user.id,
+        business_stage: stage,
+      });
 
-    if (error) {
-      setError(error.message);
+    if (stageError) {
+      setError(stageError.message);
       setLoading(false);
       return;
     }
-      await supabase.from("entrepreneur_stage_history").insert({
-      user_id: session.user.id,
-      stage: stage,
-    });
 
-    router.push("/entrepreneur/result");
+    // 2️⃣ SAVE STAGE HISTORY (V2 · PILLAR 1)
+    const { error: historyError } = await supabase
+      .from("entrepreneur_stage_history")
+      .insert({
+        user_id: session.user.id,
+        stage: stage,
+      });
+
+    if (historyError) {
+      console.error("Stage history insert failed:", historyError.message);
+    }
+
+    // 3️⃣ Redirect
+    router.replace("/entrepreneur/result");
   };
 
   return (
@@ -105,7 +122,8 @@ useEffect(() => {
         >
           {loading ? "Saving..." : "Continue"}
         </button>
-          <BackButton fallback="/dashboard" />
+
+        <BackButton fallback="/dashboard" />
       </div>
     </div>
   );

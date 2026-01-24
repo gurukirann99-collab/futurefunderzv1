@@ -13,7 +13,7 @@ export default function StudentAssessmentPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  // 🔹 Prevent duplicate assessment
+  // 🔹 Prevent duplicate assessment (V1 rule)
   useEffect(() => {
     const checkExisting = async () => {
       const {
@@ -22,41 +22,28 @@ export default function StudentAssessmentPage() {
 
       if (!session) return;
 
-      useEffect(() => {
-  const checkRetakeEligibility = async () => {
-    const {
-      data: { session },
-    } = await supabase.auth.getSession();
+      const { data } = await supabase
+        .from("student_assessments")
+        .select("id")
+        .eq("user_id", session.user.id)
+        .maybeSingle();
 
-    if (!session) return;
-
-    const { data } = await supabase
-      .from("student_journey_history")
-      .select("created_at")
-      .eq("user_id", session.user.id)
-      .order("created_at", { ascending: false })
-      .limit(1);
-
-    if (!data || data.length === 0) return;
-
-    const lastAttempt = new Date(data[0].created_at);
-    const diffDays =
-      (Date.now() - lastAttempt.getTime()) / (1000 * 60 * 60 * 24);
-
-    if (diffDays < 14) {
-      router.push("/student/result");
-    }
-  };
-
-  checkRetakeEligibility();
-}, [router]);
-
+      if (data) {
+        router.replace("/student/result");
+      }
     };
 
     checkExisting();
   }, [router]);
 
   const submitAssessment = async () => {
+    if (loading) return;
+
+    if (!careerClarity || !skillLevel) {
+      setError("Please answer all questions.");
+      return;
+    }
+
     setLoading(true);
     setError("");
 
@@ -80,14 +67,13 @@ export default function StudentAssessmentPage() {
       derivedStage = "Focus";
     }
 
-    // 1️⃣ Save original assessment (V1)
+    // 1️⃣ Save assessment answers
     const { error: assessmentError } = await supabase
       .from("student_assessments")
       .insert({
         user_id: session.user.id,
         career_clarity: careerClarity,
         skill_level: skillLevel,
-        stage: derivedStage, // optional but useful
       });
 
     if (assessmentError) {
@@ -96,14 +82,20 @@ export default function StudentAssessmentPage() {
       return;
     }
 
-    // 🔴 🔴 🔴 NEW: SAVE JOURNEY MEMORY (V2 · PILLAR 1)
-    await supabase.from("student_journey_history").insert({
-      user_id: session.user.id,
-      stage: derivedStage,
-    });
-    // 🔴 🔴 🔴 THIS IS THE ONLY V2 ADDITION
+    // 2️⃣ SAVE JOURNEY MEMORY (V2 · PILLAR 1)
+    const { error: journeyError } = await supabase
+      .from("student_journey_history")
+      .insert({
+        user_id: session.user.id,
+        stage: derivedStage,
+      });
 
-    router.push("/student/result");
+    if (journeyError) {
+      console.error("Journey insert failed:", journeyError.message);
+    }
+
+    // 3️⃣ Redirect to result
+    router.replace("/student/result");
   };
 
   return (
@@ -162,7 +154,6 @@ export default function StudentAssessmentPage() {
           {loading ? "Submitting..." : "Submit Assessment"}
         </button>
 
-        {/* ✅ BACK BUTTON (KEPT AS YOU WANTED) */}
         <BackButton fallback="/dashboard" />
       </div>
     </div>

@@ -6,15 +6,17 @@ import { useRouter } from "next/navigation";
 
 export default function MentorProfilePage() {
   const router = useRouter();
+
   const [fullName, setFullName] = useState("");
   const [expertise, setExpertise] = useState("");
   const [experience, setExperience] = useState("");
   const [availability, setAvailability] = useState("");
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
   useEffect(() => {
-    const checkExisting = async () => {
+    const checkAccessAndExisting = async () => {
       const {
         data: { session },
       } = await supabase.auth.getSession();
@@ -24,21 +26,41 @@ export default function MentorProfilePage() {
         return;
       }
 
+      // 🔹 Enforce mentor-only access
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("role")
+        .eq("user_id", session.user.id)
+        .single();
+
+      if (profile?.role !== "mentor") {
+        router.push("/dashboard");
+        return;
+      }
+
+      // 🔹 Prevent duplicate profile creation
       const { data } = await supabase
         .from("mentor_profiles")
         .select("id")
         .eq("user_id", session.user.id)
-        .limit(1);
+        .maybeSingle();
 
-      if (data && data.length > 0) {
+      if (data) {
         router.push("/dashboard");
       }
     };
 
-    checkExisting();
+    checkAccessAndExisting();
   }, [router]);
 
   const saveProfile = async () => {
+    if (loading) return;
+
+    if (!fullName || !expertise || !experience || !availability) {
+      setError("Please fill all fields.");
+      return;
+    }
+
     setLoading(true);
     setError("");
 
