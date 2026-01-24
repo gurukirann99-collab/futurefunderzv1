@@ -1,20 +1,29 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
 import BackButton from "@/app/components/BackButton";
-import { useEffect } from "react";
 
 export default function StudentAssessmentPage() {
   const router = useRouter();
+
   const [careerClarity, setCareerClarity] = useState("");
   const [skillLevel, setSkillLevel] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-    useEffect(() => {
-  const checkExisting = async () => {
+  // 🔹 Prevent duplicate assessment
+  useEffect(() => {
+    const checkExisting = async () => {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
+      if (!session) return;
+
+      useEffect(() => {
+  const checkRetakeEligibility = async () => {
     const {
       data: { session },
     } = await supabase.auth.getSession();
@@ -22,19 +31,30 @@ export default function StudentAssessmentPage() {
     if (!session) return;
 
     const { data } = await supabase
-      .from("student_assessments")
-      .select("id")
+      .from("student_journey_history")
+      .select("created_at")
       .eq("user_id", session.user.id)
+      .order("created_at", { ascending: false })
       .limit(1);
 
-    if (data && data.length > 0) {
+    if (!data || data.length === 0) return;
+
+    const lastAttempt = new Date(data[0].created_at);
+    const diffDays =
+      (Date.now() - lastAttempt.getTime()) / (1000 * 60 * 60 * 24);
+
+    if (diffDays < 14) {
       router.push("/student/result");
     }
   };
 
-  checkExisting();
+  checkRetakeEligibility();
 }, [router]);
 
+    };
+
+    checkExisting();
+  }, [router]);
 
   const submitAssessment = async () => {
     setLoading(true);
@@ -50,17 +70,38 @@ export default function StudentAssessmentPage() {
       return;
     }
 
-    const { error } = await supabase.from("student_assessments").insert({
-      user_id: session.user.id,
-      career_clarity: careerClarity,
-      skill_level: skillLevel,
-    });
+    // 🔹 RULE-BASED STAGE LOGIC (V1)
+    let derivedStage = "Exploration";
 
-    if (error) {
-      setError(error.message);
+    if (
+      careerClarity === "very_clear" &&
+      (skillLevel === "intermediate" || skillLevel === "advanced")
+    ) {
+      derivedStage = "Focus";
+    }
+
+    // 1️⃣ Save original assessment (V1)
+    const { error: assessmentError } = await supabase
+      .from("student_assessments")
+      .insert({
+        user_id: session.user.id,
+        career_clarity: careerClarity,
+        skill_level: skillLevel,
+        stage: derivedStage, // optional but useful
+      });
+
+    if (assessmentError) {
+      setError(assessmentError.message);
       setLoading(false);
       return;
     }
+
+    // 🔴 🔴 🔴 NEW: SAVE JOURNEY MEMORY (V2 · PILLAR 1)
+    await supabase.from("student_journey_history").insert({
+      user_id: session.user.id,
+      stage: derivedStage,
+    });
+    // 🔴 🔴 🔴 THIS IS THE ONLY V2 ADDITION
 
     router.push("/student/result");
   };
@@ -119,8 +160,10 @@ export default function StudentAssessmentPage() {
           className="w-full bg-black text-white py-2 rounded disabled:opacity-50"
         >
           {loading ? "Submitting..." : "Submit Assessment"}
-            </button>
-            <BackButton fallback="/dashboard" />    
+        </button>
+
+        {/* ✅ BACK BUTTON (KEPT AS YOU WANTED) */}
+        <BackButton fallback="/dashboard" />
       </div>
     </div>
   );

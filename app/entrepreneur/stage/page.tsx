@@ -61,6 +61,10 @@ useEffect(() => {
       setLoading(false);
       return;
     }
+      await supabase.from("entrepreneur_stage_history").insert({
+      user_id: session.user.id,
+      stage: stage,
+    });
 
     router.push("/entrepreneur/result");
   };
