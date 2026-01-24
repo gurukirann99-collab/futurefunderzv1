@@ -7,6 +7,8 @@ import Link from "next/link";
 
 export default function DashboardPage() {
   const router = useRouter();
+
+  const [profile, setProfile] = useState<any>(null);
   const [role, setRole] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -16,6 +18,7 @@ export default function DashboardPage() {
 
   useEffect(() => {
     const loadDashboard = async () => {
+      // 1️⃣ Session check
       const {
         data: { session },
       } = await supabase.auth.getSession();
@@ -25,21 +28,39 @@ export default function DashboardPage() {
         return;
       }
 
-      const { data: profile } = await supabase
+      // 2️⃣ Load profile FIRST
+      const { data: profileData } = await supabase
         .from("profiles")
-        .select("role")
+        .select("role, email_verified")
         .eq("user_id", session.user.id)
-        .single();
+        .maybeSingle();
 
-      if (!profile?.role) {
-        router.push("/role");
+      if (!profileData) {
+        setLoading(false);
         return;
       }
 
-      setRole(profile.role);
+      // 3️⃣ Sync email verification SAFELY
+      const { data: authUser } = await supabase.auth.getUser();
 
-      // STUDENT
-      if (profile.role === "student") {
+      if (
+        authUser?.user?.email_confirmed_at &&
+        profileData.email_verified === false
+      ) {
+        await supabase
+          .from("profiles")
+          .update({ email_verified: true })
+          .eq("user_id", session.user.id);
+
+        // refresh profile after update
+        profileData.email_verified = true;
+      }
+
+      setProfile(profileData);
+      setRole(profileData.role);
+
+      // 4️⃣ Role-specific completion checks
+      if (profileData.role === "student") {
         const { data } = await supabase
           .from("student_assessments")
           .select("id")
@@ -49,8 +70,7 @@ export default function DashboardPage() {
         setStudentDone(!!data && data.length > 0);
       }
 
-      // ENTREPRENEUR
-      if (profile.role === "entrepreneur") {
+      if (profileData.role === "entrepreneur") {
         const { data } = await supabase
           .from("entrepreneur_stages")
           .select("id")
@@ -60,8 +80,7 @@ export default function DashboardPage() {
         setEntrepreneurDone(!!data && data.length > 0);
       }
 
-      // MENTOR
-      if (profile.role === "mentor") {
+      if (profileData.role === "mentor") {
         const { data } = await supabase
           .from("mentor_profiles")
           .select("id")
@@ -83,6 +102,12 @@ export default function DashboardPage() {
     <div className="p-8 space-y-6">
       <h1 className="text-2xl font-bold">Dashboard</h1>
 
+      {profile?.email_verified === false && (
+        <div className="border p-3 rounded bg-yellow-50 text-sm">
+          ⚠️ Please verify your email to unlock full features.
+        </div>
+      )}
+
       {/* ================= STUDENT ================= */}
       {role === "student" && (
         <div className="space-y-4">
@@ -101,9 +126,6 @@ export default function DashboardPage() {
             className="block border p-4 rounded hover:bg-gray-100"
           >
             🧠 Request Mentor
-            <p className="text-sm text-gray-600">
-              Get guidance from a mentor
-            </p>
           </Link>
 
           <Link
@@ -119,12 +141,18 @@ export default function DashboardPage() {
       {role === "entrepreneur" && (
         <div className="space-y-4">
           <Link
-            href={entrepreneurDone ? "/entrepreneur/result" : "/entrepreneur/stage"}
+            href={
+              entrepreneurDone
+                ? "/entrepreneur/result"
+                : "/entrepreneur/stage"
+            }
             className="block border p-4 rounded hover:bg-gray-100"
           >
             🚀 Business Stage
             <p className="text-sm text-gray-600">
-              {entrepreneurDone ? "Completed ✓" : "Tell us where your business stands"}
+              {entrepreneurDone
+                ? "Completed ✓"
+                : "Tell us where your business stands"}
             </p>
           </Link>
 
@@ -148,7 +176,11 @@ export default function DashboardPage() {
       {role === "mentor" && (
         <div className="space-y-4">
           <Link
-            href={mentorProfileExists ? "/mentor/profile/view" : "/mentor/profile"}
+            href={
+              mentorProfileExists
+                ? "/mentor/profile/view"
+                : "/mentor/profile"
+            }
             className="block border p-4 rounded hover:bg-gray-100"
           >
             🧠 Mentor Profile
@@ -164,9 +196,6 @@ export default function DashboardPage() {
             className="block border p-4 rounded hover:bg-gray-100"
           >
             📨 Mentor Requests
-            <p className="text-sm text-gray-600">
-              View and respond to mentorship requests
-            </p>
           </Link>
         </div>
       )}
