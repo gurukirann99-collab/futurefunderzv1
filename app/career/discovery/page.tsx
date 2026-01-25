@@ -18,31 +18,49 @@ export default function CareerDiscoveryPage() {
 
     setLoading(true);
 
-    const {
-      data: { session },
-    } = await supabase.auth.getSession();
-
-    if (!session) {
-      router.push("/login?redirect=/career/discovery");
-      return;
-    }
-
+    // 🔹 Derive stage
     let stage = "exploration";
     if (clarity === "mostly-clear") stage = "execution";
     else if (clarity === "somewhat-clear") stage = "focus";
 
-    await supabase.from("student_assessments").insert({
-      user_id: session.user.id,
-      career_clarity: stage,
-      skill_level: interest,
-    });
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
 
-    await supabase.from("student_journey_history").insert({
-      user_id: session.user.id,
-      stage: stage,
-    });
+    /* ===============================
+       CASE 1️⃣: USER LOGGED IN
+       → Save directly
+    =============================== */
+    if (session) {
+      await supabase.from("student_assessments").insert({
+        user_id: session.user.id,
+        career_clarity: stage,
+        skill_level: interest,
+      });
 
-    router.push("/career/path");
+      await supabase.from("student_journey_history").insert({
+        user_id: session.user.id,
+        stage: stage,
+      });
+
+      router.push("/career/path");
+      return;
+    }
+
+    /* ===============================
+       CASE 2️⃣: FIRST-TIME USER
+       → Store temporarily
+       → Ask SIGNUP (not login)
+    =============================== */
+    localStorage.setItem(
+      "pendingCareerDiscovery",
+      JSON.stringify({
+        stage,
+        interest,
+      })
+    );
+
+    router.push("/signup?redirect=/career/path");
   };
 
   return (

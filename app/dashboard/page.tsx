@@ -13,9 +13,46 @@ export default function DashboardPage() {
   const [careerDone, setCareerDone] = useState(false);
   const [role, setRole] = useState<string | null>(null);
 
+  // V1 placeholders (DB later)
   const learningStarted = false;
   const workStarted = false;
 
+  /* =========================================
+     🔑 SYNC CAREER DISCOVERY (FIRST TIME ONLY)
+  ========================================= */
+  useEffect(() => {
+    const syncCareerDiscovery = async () => {
+      const pending = localStorage.getItem("pendingCareerDiscovery");
+      if (!pending) return;
+
+      const parsed = JSON.parse(pending);
+
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
+      if (!session) return;
+
+      await supabase.from("student_assessments").insert({
+        user_id: session.user.id,
+        career_clarity: parsed.stage,
+        skill_level: parsed.interest,
+      });
+
+      await supabase.from("student_journey_history").insert({
+        user_id: session.user.id,
+        stage: parsed.stage,
+      });
+
+      localStorage.removeItem("pendingCareerDiscovery");
+    };
+
+    syncCareerDiscovery();
+  }, []);
+
+  /* =========================================
+     LOAD DASHBOARD
+  ========================================= */
   useEffect(() => {
     const loadDashboard = async () => {
       const {
@@ -23,7 +60,7 @@ export default function DashboardPage() {
       } = await supabase.auth.getSession();
 
       if (!session) {
-        router.replace("/login");
+        router.replace("/login?redirect=/dashboard");
         return;
       }
 
@@ -58,17 +95,24 @@ export default function DashboardPage() {
     loadDashboard();
   }, [router]);
 
-  if (loading)
+  if (loading) {
     return (
       <p className="p-8 bg-[var(--bg)] text-[var(--muted)]">
         Loading dashboard...
       </p>
     );
+  }
 
+  /* =========================================
+     NON-STUDENT ROLES
+  ========================================= */
   if (role !== "student") {
     return <ComingSoon role={role!} />;
   }
 
+  /* =========================================
+     NEXT STEP LOGIC (CORE UX)
+  ========================================= */
   let nextStep = { title: "", description: "", href: "", button: "" };
 
   if (!careerDone) {

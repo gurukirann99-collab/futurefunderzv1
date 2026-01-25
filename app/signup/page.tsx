@@ -4,6 +4,8 @@ import { useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
+
 
 export default function SignupPage() {
   const router = useRouter();
@@ -13,6 +15,8 @@ export default function SignupPage() {
   const [agreed, setAgreed] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const searchParams = useSearchParams();
+  const redirectTo = searchParams.get("redirect") || "/role";
 
   const handleSignup = async () => {
     if (!agreed) {
@@ -34,7 +38,7 @@ export default function SignupPage() {
       return;
     }
 
-    router.push("/role");
+    router.push(redirectTo);
   };
 
   return (
