@@ -1,9 +1,10 @@
 "use client";
 
+import { Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 
-export default function IntentPage() {
+function IntentContent() {
   const params = useSearchParams();
   const goal = params.get("goal");
 
@@ -101,6 +102,14 @@ export default function IntentPage() {
   );
 }
 
+export default function IntentPage() {
+  return (
+    <Suspense fallback={<p className="p-8">Loading...</p>}>
+      <IntentContent />
+    </Suspense>
+  );
+}
+
 /* 🔹 Reusable Card */
 function IntentCard({
   href,
@@ -121,8 +130,12 @@ function IntentCard({
       <div className="flex items-start gap-3">
         <div className="text-xl">{icon}</div>
         <div>
-          <div className="font-medium text-gray-900">{title}</div>
-          <p className="text-sm text-gray-500">{desc}</p>
+          <div className="font-medium text-gray-900">
+            {title}
+          </div>
+          <p className="text-sm text-gray-500">
+            {desc}
+          </p>
         </div>
       </div>
     </Link>

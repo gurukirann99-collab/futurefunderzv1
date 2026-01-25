@@ -1,5 +1,6 @@
 "use client";
 
+import { Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useRequireAuth } from "@/lib/hooks/useRequireAuth";
@@ -18,7 +19,7 @@ const PROJECT_LABELS: Record<string, string> = {
   "python-script": "Build a Simple Python Automation Script",
 };
 
-export default function LearningProgressPage() {
+function LearningProgressContent() {
   const { loading } = useRequireAuth();
   const params = useSearchParams();
 
@@ -53,41 +54,38 @@ export default function LearningProgressPage() {
         </div>
       )}
 
-      {/* 🔑 READINESS DECLARATION */}
-{hasStartedCourse && selectedProjectTitle && (
-  <div className="border rounded p-4 space-y-4">
-    <p className="font-semibold">
-      What would you like to explore next?
-    </p>
+      {/* NEXT OPTIONS */}
+      {hasStartedCourse && selectedProjectTitle && (
+        <div className="border rounded p-4 space-y-4">
+          <p className="font-semibold">
+            What would you like to explore next?
+          </p>
 
-    {/* INTERNSHIPS OPTION */}
-    <Link
-      href="/work/internships"
-      className="block border rounded p-3 hover:bg-gray-50"
-    >
-      <p className="font-medium">Internships</p>
-      <p className="text-xs text-gray-600">
-        Gain real-world experience with guidance
-      </p>
-    </Link>
+          <Link
+            href="/work/internships"
+            className="block border rounded p-3 hover:bg-gray-50"
+          >
+            <p className="font-medium">Internships</p>
+            <p className="text-xs text-gray-600">
+              Gain real-world experience with guidance
+            </p>
+          </Link>
 
-    {/* JOBS OPTION */}
-    <Link
-      href="/work/jobs"
-      className="block bg-green-600 text-white rounded p-3 hover:bg-green-700"
-    >
-      <p className="font-medium">Jobs</p>
-      <p className="text-xs text-green-100">
-        Apply directly for entry-level roles
-      </p>
-    </Link>
+          <Link
+            href="/work/jobs"
+            className="block bg-green-600 text-white rounded p-3 hover:bg-green-700"
+          >
+            <p className="font-medium">Jobs</p>
+            <p className="text-xs text-green-100">
+              Apply directly for entry-level roles
+            </p>
+          </Link>
 
-    <p className="text-xs text-gray-500 text-center">
-      You can explore both anytime.
-    </p>
-  </div>
-)}
-
+          <p className="text-xs text-gray-500 text-center">
+            You can explore both anytime.
+          </p>
+        </div>
+      )}
 
       {/* FALLBACK */}
       {!selectedProjectTitle && (
@@ -99,7 +97,6 @@ export default function LearningProgressPage() {
         </Link>
       )}
 
-      {/* SECONDARY */}
       <Link
         href="/learning/courses"
         className="block text-center text-sm text-gray-500 underline"
@@ -107,5 +104,13 @@ export default function LearningProgressPage() {
         Continue learning
       </Link>
     </div>
+  );
+}
+
+export default function LearningProgressPage() {
+  return (
+    <Suspense fallback={<p className="p-8">Loading...</p>}>
+      <LearningProgressContent />
+    </Suspense>
   );
 }
