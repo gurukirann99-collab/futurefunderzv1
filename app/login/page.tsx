@@ -2,11 +2,16 @@
 
 import { useState } from "react";
 import { supabase } from "@/lib/supabase";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 
 export default function LoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+
+  // ✅ THIS IS THE KEY LINE
+  const redirectTo = searchParams.get("redirect") || "/dashboard";
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -27,7 +32,8 @@ export default function LoginPage() {
       return;
     }
 
-    router.push("/dashboard");
+    // ✅ REDIRECT BACK TO ORIGINAL PAGE
+    router.push(redirectTo);
   };
 
   return (
@@ -71,6 +77,16 @@ export default function LoginPage() {
           New here?{" "}
           <Link href="/signup" className="underline">
             Create an account
+          </Link>
+        </p>
+
+        <p className="text-xs text-gray-500 text-center mt-4">
+          <Link href="/privacy" className="underline">
+            Privacy
+          </Link>{" "}
+          ·{" "}
+          <Link href="/terms" className="underline">
+            Terms
           </Link>
         </p>
       </div>
