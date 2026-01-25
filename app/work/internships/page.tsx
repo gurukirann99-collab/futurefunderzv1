@@ -39,7 +39,7 @@ const INTERNSHIPS = [
 export default function InternshipsPage() {
   const { loading } = useRequireAuth();
 
-  const [userId, setUserId] = useState<string | null>(null);
+  const [userId, setUserId] = useState<string>("");
   const [appliedIds, setAppliedIds] = useState<string[]>([]);
   const [pageLoading, setPageLoading] = useState(true);
 

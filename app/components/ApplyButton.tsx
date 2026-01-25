@@ -1,11 +1,10 @@
 "use client";
 
 import { supabase } from "@/lib/supabase";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 type Props = {
-  userId: string | null;
+  userId: string;
   opportunityId: string;
   opportunityType: "job" | "internship";
   alreadyApplied: boolean;
@@ -17,17 +16,11 @@ export default function ApplyButton({
   opportunityType,
   alreadyApplied,
 }: Props) {
-  const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [applied, setApplied] = useState(alreadyApplied);
 
-  const apply = async () => {
-    if (!userId) {
-      router.push(
-        `/login?redirect=/work/${opportunityType}s`
-      );
-      return;
-    }
+  const handleApply = async () => {
+    if (applied) return;
 
     setLoading(true);
 
@@ -37,7 +30,10 @@ export default function ApplyButton({
       opportunity_type: opportunityType,
     });
 
-    if (!error) {
+    if (error) {
+      console.error(error);
+      alert("Failed to apply. Please try again.");
+    } else {
       setApplied(true);
     }
 
@@ -48,18 +44,18 @@ export default function ApplyButton({
     return (
       <button
         disabled
-        className="text-sm px-4 py-2 rounded bg-gray-200 text-gray-600"
+        className="text-sm bg-green-100 text-green-700 px-3 py-2 rounded"
       >
-        Applied ✓
+        ✓ Applied
       </button>
     );
   }
 
   return (
     <button
-      onClick={apply}
+      onClick={handleApply}
       disabled={loading}
-      className="text-sm px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50"
+      className="text-sm bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 disabled:opacity-50"
     >
       {loading ? "Applying..." : "Apply"}
     </button>

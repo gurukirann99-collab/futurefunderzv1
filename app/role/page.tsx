@@ -1,85 +1,88 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 export default function RolePage() {
   const router = useRouter();
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(true);
 
-  const selectRole = async (role: string) => {
-    setLoading(true);
-    setError("");
+  useEffect(() => {
+    const check = async () => {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
 
-    // 1️⃣ Get active session
+      if (!session) {
+        router.replace("/login");
+        return;
+      }
+
+      setLoading(false);
+    };
+
+    check();
+  }, [router]);
+
+  const selectRole = async (role: "student" | "entrepreneur" | "mentor") => {
     const {
       data: { session },
-      error: sessionError,
     } = await supabase.auth.getSession();
 
-    if (sessionError || !session?.user) {
-      setError("Session not ready. Please refresh once.");
-      setLoading(false);
-      return;
-    }
+    if (!session) return;
 
-    const user = session.user;
+    await supabase
+      .from("profiles")
+      .update({ role })
+      .eq("user_id", session.user.id);
 
-    // 2️⃣ Save role in profiles table
-    const { error: dbError } = await supabase.from("profiles").upsert({
-      user_id: user.id,
-      role,
-      onboarding_completed: true,
-    });
-
-    if (dbError) {
-      setError(dbError.message);
-      setLoading(false);
-      return;
-    }
-
-    // 3️⃣ Redirect to dashboard
     router.push("/dashboard");
   };
 
+  if (loading) return <p className="p-8">Loading...</p>;
+
   return (
-    <div className="min-h-screen flex items-center justify-center">
-      <div className="w-full max-w-md border p-6 rounded space-y-4">
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
+      <div className="max-w-xl w-full bg-white border rounded-xl p-6 space-y-6">
         <h1 className="text-2xl font-bold text-center">
-          Select your role
+          Choose your role
         </h1>
+        <p className="text-sm text-gray-600 text-center">
+          You can explore other roles later.
+        </p>
 
-        {error && (
-          <p className="text-red-600 text-sm text-center">
-            {error}
-          </p>
-        )}
+        <div className="space-y-4">
+          <button
+            onClick={() => selectRole("student")}
+            className="w-full border rounded p-4 text-left hover:bg-gray-50"
+          >
+            🎓 Student
+            <p className="text-sm text-gray-500">
+              Learn skills, work on projects, apply for jobs
+            </p>
+          </button>
 
-        <button
-          disabled={loading}
-          onClick={() => selectRole("student")}
-          className="w-full border py-2 rounded hover:bg-gray-100 disabled:opacity-50"
-        >
-          🎓 Student
-        </button>
+          <button
+            onClick={() => selectRole("entrepreneur")}
+            className="w-full border rounded p-4 text-left hover:bg-gray-50"
+          >
+            🚀 Entrepreneur
+            <p className="text-sm text-gray-500">
+              Build a business (coming soon)
+            </p>
+          </button>
 
-        <button
-          disabled={loading}
-          onClick={() => selectRole("entrepreneur")}
-          className="w-full border py-2 rounded hover:bg-gray-100 disabled:opacity-50"
-        >
-          🚀 Entrepreneur
-        </button>
-
-        <button
-          disabled={loading}
-          onClick={() => selectRole("mentor")}
-          className="w-full border py-2 rounded hover:bg-gray-100 disabled:opacity-50"
-        >
-          🧠 Mentor
-        </button>
+          <button
+            onClick={() => selectRole("mentor")}
+            className="w-full border rounded p-4 text-left hover:bg-gray-50"
+          >
+            🧠 Mentor
+            <p className="text-sm text-gray-500">
+              Guide learners (coming soon)
+            </p>
+          </button>
+        </div>
       </div>
     </div>
   );
