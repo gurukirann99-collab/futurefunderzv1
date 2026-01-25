@@ -12,7 +12,6 @@ export default function EntrepreneurStagePage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  // 🔹 Prevent duplicate submission (V1 rule)
   useEffect(() => {
     const checkExisting = async () => {
       const {
@@ -56,7 +55,6 @@ export default function EntrepreneurStagePage() {
       return;
     }
 
-    // 1️⃣ Save current business stage
     const { error: stageError } = await supabase
       .from("entrepreneur_stages")
       .insert({
@@ -70,7 +68,6 @@ export default function EntrepreneurStagePage() {
       return;
     }
 
-    // 2️⃣ SAVE STAGE HISTORY (V2 · PILLAR 1)
     const { error: historyError } = await supabase
       .from("entrepreneur_stage_history")
       .insert({
@@ -82,23 +79,22 @@ export default function EntrepreneurStagePage() {
       console.error("Stage history insert failed:", historyError.message);
     }
 
-    // 3️⃣ Redirect
     router.replace("/entrepreneur/result");
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center">
-      <div className="w-full max-w-md border p-6 rounded space-y-6">
+    <div className="min-h-screen flex items-center justify-center bg-[var(--bg)] px-4">
+      <div className="w-full max-w-md bg-[var(--card)] border border-[var(--border)] p-6 rounded-2xl space-y-6 shadow text-[var(--text)]">
         <h1 className="text-2xl font-bold text-center">
           Business Stage
         </h1>
 
-        <p className="text-sm text-gray-600 text-center">
+        <p className="text-sm text-[var(--muted)] text-center">
           Tell us where your business currently stands
         </p>
 
         <select
-          className="w-full border p-2 rounded"
+          className="w-full border border-[var(--border)] bg-[var(--bg)] text-[var(--text)] p-2 rounded focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
           value={stage}
           onChange={(e) => setStage(e.target.value)}
         >
@@ -110,7 +106,7 @@ export default function EntrepreneurStagePage() {
         </select>
 
         {error && (
-          <p className="text-red-600 text-sm text-center">
+          <p className="text-[rgb(239,68,68)] text-sm text-center">
             {error}
           </p>
         )}
@@ -118,7 +114,7 @@ export default function EntrepreneurStagePage() {
         <button
           disabled={loading || !stage}
           onClick={submitStage}
-          className="w-full bg-black text-white py-2 rounded disabled:opacity-50"
+          className="w-full bg-[var(--primary)] text-white py-2 rounded hover:opacity-90 disabled:opacity-50"
         >
           {loading ? "Saving..." : "Continue"}
         </button>

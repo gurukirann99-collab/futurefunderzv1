@@ -1,8 +1,9 @@
 export default function HelpPage() {
   return (
-    <div>
+    <div className="min-h-screen bg-[var(--bg)] p-8 text-[var(--text)]">
       <h1 className="text-2xl font-bold">Help</h1>
-      <p className="text-gray-600 mt-2">
+
+      <p className="text-[var(--muted)] mt-2">
         Help and support options will appear here soon.
       </p>
     </div>

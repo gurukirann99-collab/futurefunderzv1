@@ -31,33 +31,42 @@ export default function ApplicationsPage() {
     load();
   }, []);
 
-  if (loading) return <p className="p-8">Loading applications...</p>;
+  if (loading)
+    return (
+      <p className="p-8 bg-[var(--bg)] text-[var(--muted)]">
+        Loading applications...
+      </p>
+    );
 
   return (
-    <div className="p-8 max-w-3xl mx-auto space-y-4">
-      <h1 className="text-2xl font-bold">Your Applications</h1>
+    <div className="min-h-screen bg-[var(--bg)]">
+      <div className="p-8 max-w-3xl mx-auto space-y-4 text-[var(--text)]">
+        <h1 className="text-2xl font-bold">
+          Your Applications
+        </h1>
 
-      {apps.length === 0 && (
-        <p className="text-gray-600 text-sm">
-          You haven’t applied to any opportunities yet.
-        </p>
-      )}
+        {apps.length === 0 && (
+          <p className="text-[var(--muted)] text-sm">
+            You haven’t applied to any opportunities yet.
+          </p>
+        )}
 
-      {apps.map((app) => (
-        <div
-          key={app.id}
-          className="border rounded p-3 text-sm"
-        >
-          <p>
-            {app.opportunity_type.toUpperCase()} —{" "}
-            {app.opportunity_id}
-          </p>
-          <p className="text-gray-500">
-            Applied on{" "}
-            {new Date(app.created_at).toLocaleDateString()}
-          </p>
-        </div>
-      ))}
+        {apps.map((app) => (
+          <div
+            key={app.id}
+            className="bg-[var(--card)] border border-[var(--border)] rounded-xl p-3 text-sm"
+          >
+            <p>
+              {app.opportunity_type.toUpperCase()} —{" "}
+              {app.opportunity_id}
+            </p>
+            <p className="text-[var(--muted)]">
+              Applied on{" "}
+              {new Date(app.created_at).toLocaleDateString()}
+            </p>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

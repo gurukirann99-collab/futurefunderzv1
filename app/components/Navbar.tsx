@@ -13,13 +13,11 @@ export default function Navbar() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Initial session check
     supabase.auth.getSession().then(({ data }) => {
       setLoggedIn(!!data.session);
       setLoading(false);
     });
 
-    // Listen to auth changes
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
@@ -41,19 +39,19 @@ export default function Navbar() {
   const linkClass = (href: string) =>
     `text-sm ${
       pathname === href
-        ? "text-blue-600 font-medium"
-        : "text-gray-600 hover:text-gray-900"
+        ? "text-[var(--primary)] font-medium"
+        : "text-[var(--muted)] hover:text-[var(--text)]"
     }`;
 
   return (
-    <nav className="border-b bg-white">
+    <nav className="border-b border-[var(--border)] bg-[var(--bg)]">
       <div className="max-w-7xl mx-auto px-6 py-3 flex items-center justify-between">
         {/* Brand */}
         <Link href="/" className="flex flex-col leading-tight">
-          <span className="font-bold text-lg">
+          <span className="font-bold text-lg text-[var(--text)]">
             FutureFunderz
           </span>
-          <span className="text-xs text-gray-500">
+          <span className="text-xs text-[var(--muted)]">
             Career → Learning → Work
           </span>
         </Link>
@@ -65,9 +63,10 @@ export default function Navbar() {
               <Link href="/login" className={linkClass("/login")}>
                 Login
               </Link>
+
               <Link
                 href="/signup"
-                className="text-sm bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
+                className="text-sm bg-[var(--primary)] text-white px-4 py-2 rounded hover:opacity-90 transition"
               >
                 Sign up
               </Link>
@@ -86,7 +85,7 @@ export default function Navbar() {
 
               <button
                 onClick={logout}
-                className="text-sm text-gray-500 hover:text-gray-800 border px-3 py-1.5 rounded hover:bg-gray-100 transition"
+                className="text-sm text-[var(--muted)] hover:text-[var(--text)] border border-[var(--border)] px-3 py-1.5 rounded hover:bg-[var(--card)] transition"
               >
                 Logout
               </button>

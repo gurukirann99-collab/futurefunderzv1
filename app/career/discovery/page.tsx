@@ -15,7 +15,7 @@ export default function CareerDiscoveryPage() {
 
   const handleSubmit = async () => {
     if (!education || !interest || !clarity) return;
-    
+
     setLoading(true);
 
     const {
@@ -27,20 +27,16 @@ export default function CareerDiscoveryPage() {
       return;
     }
 
-    // 🧠 Simple V1 logic
     let stage = "exploration";
-
     if (clarity === "mostly-clear") stage = "execution";
     else if (clarity === "somewhat-clear") stage = "focus";
 
-    // Save assessment
     await supabase.from("student_assessments").insert({
       user_id: session.user.id,
       career_clarity: stage,
       skill_level: interest,
     });
 
-    // Save journey history
     await supabase.from("student_journey_history").insert({
       user_id: session.user.id,
       stage: stage,
@@ -50,18 +46,21 @@ export default function CareerDiscoveryPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
-      <div className="max-w-md w-full space-y-6">
+    <div className="min-h-screen flex items-center justify-center bg-[var(--bg)] px-4">
+      <div className="max-w-md w-full space-y-6 bg-[var(--card)] border border-[var(--border)] p-6 rounded-2xl shadow">
         <BackButton />
-        <h1 className="text-2xl font-bold text-center">
+
+        <h1 className="text-2xl font-bold text-center text-[var(--text)]">
           Let’s understand where you are
         </h1>
 
         {/* Q1 */}
         <div>
-          <p className="font-medium mb-2">Your current situation</p>
+          <p className="font-medium mb-2 text-[var(--text)]">
+            Your current situation
+          </p>
           <select
-            className="w-full border p-2 rounded"
+            className="w-full border border-[var(--border)] bg-[var(--bg)] text-[var(--text)] p-2 rounded focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
             value={education}
             onChange={(e) => setEducation(e.target.value)}
           >
@@ -75,9 +74,11 @@ export default function CareerDiscoveryPage() {
 
         {/* Q2 */}
         <div>
-          <p className="font-medium mb-2">What interests you more?</p>
+          <p className="font-medium mb-2 text-[var(--text)]">
+            What interests you more?
+          </p>
           <select
-            className="w-full border p-2 rounded"
+            className="w-full border border-[var(--border)] bg-[var(--bg)] text-[var(--text)] p-2 rounded focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
             value={interest}
             onChange={(e) => setInterest(e.target.value)}
           >
@@ -91,11 +92,11 @@ export default function CareerDiscoveryPage() {
 
         {/* Q3 */}
         <div>
-          <p className="font-medium mb-2">
+          <p className="font-medium mb-2 text-[var(--text)]">
             How confident do you feel about your next step?
           </p>
           <select
-            className="w-full border p-2 rounded"
+            className="w-full border border-[var(--border)] bg-[var(--bg)] text-[var(--text)] p-2 rounded focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
             value={clarity}
             onChange={(e) => setClarity(e.target.value)}
           >
@@ -109,15 +110,14 @@ export default function CareerDiscoveryPage() {
         <button
           onClick={handleSubmit}
           disabled={loading}
-          className="w-full bg-blue-600 text-white rounded p-3 hover:bg-blue-700 disabled:opacity-50"
+          className="w-full bg-[var(--primary)] text-white rounded p-3 hover:opacity-90 disabled:opacity-50"
         >
           {loading ? "Saving..." : "Continue"}
         </button>
 
-        <p className="text-xs text-gray-400 text-center">
+        <p className="text-xs text-[var(--muted)] text-center">
           No right or wrong answers. This helps us guide you better.
         </p>
-      
       </div>
     </div>
   );

@@ -34,9 +34,12 @@ export default function MentorDashboard() {
   }, [router]);
 
   return (
-    <div className="p-8">
-      <h1 className="text-2xl font-bold">Mentor Dashboard</h1>
-      <p className="text-sm text-gray-600">
+    <div className="min-h-screen bg-[var(--bg)] p-8 text-[var(--text)]">
+      <h1 className="text-2xl font-bold">
+        Mentor Dashboard
+      </h1>
+
+      <p className="text-sm text-[var(--muted)] mt-1">
         Mentor features will appear here.
       </p>
     </div>

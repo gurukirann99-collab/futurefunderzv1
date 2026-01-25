@@ -26,36 +26,35 @@ export default function AdminUsersPage() {
   }, [router]);
 
   return (
-    <div className="p-6">
+    <div className="min-h-screen bg-[var(--bg)] p-6 text-[var(--text)]">
       <h1 className="text-xl font-bold mb-4">Users</h1>
 
       {users.map((u) => (
         <div
-  key={u.user_id}
-  className="border p-3 mb-2 rounded flex justify-between items-center"
->
-  <div>
-    <p className="text-sm text-gray-500">User ID</p>
-    <p className="font-mono text-xs">{u.user_id}</p>
-  </div>
+          key={u.user_id}
+          className="bg-[var(--card)] border border-[var(--border)] p-3 mb-2 rounded-xl flex justify-between items-center"
+        >
+          <div>
+            <p className="text-sm text-[var(--muted)]">User ID</p>
+            <p className="font-mono text-xs">{u.user_id}</p>
+          </div>
 
-  <div className="flex gap-2 items-center">
-    <span className="px-2 py-1 text-xs rounded bg-gray-100">
-      {u.role || "unassigned"}
-    </span>
+          <div className="flex gap-2 items-center">
+            <span className="px-2 py-1 text-xs rounded bg-[var(--border)] text-[var(--text)]">
+              {u.role || "unassigned"}
+            </span>
 
-    {u.email_verified ? (
-      <span className="px-2 py-1 text-xs rounded bg-green-100 text-green-700">
-        Email Verified
-      </span>
-    ) : (
-      <span className="px-2 py-1 text-xs rounded bg-yellow-100 text-yellow-700">
-        Email Pending
-      </span>
-    )}
-  </div>
-</div>
-
+            {u.email_verified ? (
+              <span className="px-2 py-1 text-xs rounded bg-[rgba(34,197,94,0.15)] text-[rgb(34,197,94)]">
+                Email Verified
+              </span>
+            ) : (
+              <span className="px-2 py-1 text-xs rounded bg-[rgba(234,179,8,0.15)] text-[rgb(234,179,8)]">
+                Email Pending
+              </span>
+            )}
+          </div>
+        </div>
       ))}
     </div>
   );

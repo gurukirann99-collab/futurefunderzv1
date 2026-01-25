@@ -12,7 +12,6 @@ const activeCourse = {
   totalLessons: 4,
 };
 
-// Human-readable project names
 const PROJECT_LABELS: Record<string, string> = {
   "portfolio-website": "Build a Personal Portfolio Website",
   "landing-page": "Design a Marketing Landing Page",
@@ -29,87 +28,110 @@ function LearningProgressContent() {
 
   const hasStartedCourse = activeCourse.completedLessons > 0;
 
-  if (loading) return <p className="p-8">Loading progress...</p>;
+  if (loading)
+    return (
+      <p className="p-8 bg-[var(--bg)] text-[var(--muted)]">
+        Loading progress...
+      </p>
+    );
 
   return (
-    <div className="p-8 max-w-xl mx-auto space-y-8">
-      <h1 className="text-2xl font-bold">Your Learning Progress</h1>
+    <div className="min-h-screen bg-[var(--bg)]">
+      <div className="p-8 max-w-xl mx-auto space-y-8 text-[var(--text)]">
+        <h1 className="text-2xl font-bold">
+          Your Learning Progress
+        </h1>
 
-      {/* COURSE STATUS */}
-      <div className="border rounded p-4 space-y-2">
-        <h2 className="font-semibold">{activeCourse.title}</h2>
-        <p className="text-sm text-gray-600">
-          Progress: {activeCourse.completedLessons} /{" "}
-          {activeCourse.totalLessons} lessons
-        </p>
-      </div>
-
-      {/* PROJECT CONTEXT */}
-      {selectedProjectTitle && (
-        <div className="border rounded p-4 bg-blue-50 space-y-1">
-          <p className="text-sm font-semibold">Practice project</p>
-          <p className="text-sm text-gray-700">
-            {selectedProjectTitle}
+        {/* COURSE STATUS */}
+        <div className="bg-[var(--card)] border border-[var(--border)] rounded-xl p-4 space-y-2">
+          <h2 className="font-semibold">
+            {activeCourse.title}
+          </h2>
+          <p className="text-sm text-[var(--muted)]">
+            Progress: {activeCourse.completedLessons} /{" "}
+            {activeCourse.totalLessons} lessons
           </p>
         </div>
-      )}
 
-      {/* NEXT OPTIONS */}
-      {hasStartedCourse && selectedProjectTitle && (
-        <div className="border rounded p-4 space-y-4">
-          <p className="font-semibold">
-            What would you like to explore next?
-          </p>
-
-          <Link
-            href="/work/internships"
-            className="block border rounded p-3 hover:bg-gray-50"
-          >
-            <p className="font-medium">Internships</p>
-            <p className="text-xs text-gray-600">
-              Gain real-world experience with guidance
+        {/* PROJECT CONTEXT */}
+        {selectedProjectTitle && (
+          <div className="bg-[rgba(99,102,241,0.15)] border border-[var(--border)] rounded-xl p-4 space-y-1">
+            <p className="text-sm font-semibold text-[var(--primary)]">
+              Practice project
             </p>
-          </Link>
-
-          <Link
-            href="/work/jobs"
-            className="block bg-green-600 text-white rounded p-3 hover:bg-green-700"
-          >
-            <p className="font-medium">Jobs</p>
-            <p className="text-xs text-green-100">
-              Apply directly for entry-level roles
+            <p className="text-sm text-[var(--text)]">
+              {selectedProjectTitle}
             </p>
+          </div>
+        )}
+
+        {/* NEXT OPTIONS */}
+        {hasStartedCourse && selectedProjectTitle && (
+          <div className="bg-[var(--card)] border border-[var(--border)] rounded-xl p-4 space-y-4">
+            <p className="font-semibold">
+              What would you like to explore next?
+            </p>
+
+            <Link
+              href="/work/internships"
+              className="block border border-[var(--border)] rounded p-3 hover:bg-[var(--bg)]"
+            >
+              <p className="font-medium">
+                Internships
+              </p>
+              <p className="text-xs text-[var(--muted)]">
+                Gain real-world experience with guidance
+              </p>
+            </Link>
+
+            <Link
+              href="/work/jobs"
+              className="block bg-[var(--primary)] text-white rounded p-3 hover:opacity-90"
+            >
+              <p className="font-medium">
+                Jobs
+              </p>
+              <p className="text-xs opacity-90">
+                Apply directly for entry-level roles
+              </p>
+            </Link>
+
+            <p className="text-xs text-[var(--muted)] text-center">
+              You can explore both anytime.
+            </p>
+          </div>
+        )}
+
+        {/* FALLBACK */}
+        {!selectedProjectTitle && (
+          <Link
+            href="/work/projects"
+            className="block text-center bg-[var(--primary)] text-white rounded p-3 hover:opacity-90"
+          >
+            Choose a practice project
           </Link>
+        )}
 
-          <p className="text-xs text-gray-500 text-center">
-            You can explore both anytime.
-          </p>
-        </div>
-      )}
-
-      {/* FALLBACK */}
-      {!selectedProjectTitle && (
         <Link
-          href="/work/projects"
-          className="block text-center bg-green-600 text-white rounded p-3 hover:bg-green-700"
+          href="/learning/courses"
+          className="block text-center text-sm text-[var(--muted)] underline"
         >
-          Choose a practice project
+          Continue learning
         </Link>
-      )}
-
-      <Link
-        href="/learning/courses"
-        className="block text-center text-sm text-gray-500 underline"
-      >
-        Continue learning
-      </Link>
+      </div>
     </div>
   );
 }
 
 export default function LearningProgressPage() {
   return (
-    <Suspense fallback={<p className="p-8">Loading...</p>}>
+    <Suspense
+      fallback={
+        <p className="p-8 bg-[var(--bg)] text-[var(--muted)]">
+          Loading...
+        </p>
+      }
+    >
       <LearningProgressContent />
     </Suspense>
   );

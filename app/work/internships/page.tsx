@@ -69,47 +69,55 @@ export default function InternshipsPage() {
     load();
   }, []);
 
-  if (loading || pageLoading) {
-    return <p className="p-8">Loading internships...</p>;
-  }
+  if (loading || pageLoading)
+    return (
+      <p className="p-8 bg-[var(--bg)] text-[var(--muted)]">
+        Loading internships...
+      </p>
+    );
 
   return (
-    <div className="p-8 max-w-4xl mx-auto space-y-6">
-      <BackButton />
+    <div className="min-h-screen bg-[var(--bg)]">
+      <div className="p-8 max-w-4xl mx-auto space-y-6 text-[var(--text)]">
+        <BackButton />
 
-      <div>
-        <h1 className="text-2xl font-bold">Internships</h1>
-        <p className="text-sm text-gray-600">
-          Internships help you gain hands-on experience by working with real teams.
-        </p>
-      </div>
+        <div>
+          <h1 className="text-2xl font-bold">
+            Internships
+          </h1>
+          <p className="text-sm text-[var(--muted)]">
+            Internships help you gain hands-on experience by working with real teams.
+          </p>
+        </div>
 
-      <div className="grid md:grid-cols-2 gap-4">
-        {INTERNSHIPS.map((internship) => (
-          <div
-            key={internship.id}
-            className="border rounded p-4 space-y-3 hover:shadow-sm"
-          >
-            <div>
-              <h2 className="font-semibold">{internship.title}</h2>
-              <p className="text-xs text-gray-500">
-                {internship.company} • {internship.duration} • {internship.type}
+        <div className="grid md:grid-cols-2 gap-4">
+          {INTERNSHIPS.map((internship) => (
+            <div
+              key={internship.id}
+              className="bg-[var(--card)] border border-[var(--border)] rounded-xl p-4 space-y-3 hover:shadow"
+            >
+              <div>
+                <h2 className="font-semibold">
+                  {internship.title}
+                </h2>
+                <p className="text-xs text-[var(--muted)]">
+                  {internship.company} • {internship.duration} • {internship.type}
+                </p>
+              </div>
+
+              <p className="text-sm text-[var(--muted)]">
+                {internship.description}
               </p>
+
+              <ApplyButton
+                userId={userId}
+                opportunityId={internship.id}
+                opportunityType="internship"
+                alreadyApplied={appliedIds.includes(internship.id)}
+              />
             </div>
-
-            <p className="text-sm text-gray-600">
-              {internship.description}
-            </p>
-
-            {/* ✅ REAL APPLY BUTTON */}
-            <ApplyButton
-              userId={userId}
-              opportunityId={internship.id}
-              opportunityType="internship"
-              alreadyApplied={appliedIds.includes(internship.id)}
-            />
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
     </div>
   );

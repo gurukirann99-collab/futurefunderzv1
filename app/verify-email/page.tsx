@@ -38,29 +38,33 @@ export default function VerifyEmailPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center">
-      <div className="max-w-md w-full border p-6 rounded space-y-4 text-center">
-        <h1 className="text-2xl font-bold">Verify your email</h1>
+    <div className="min-h-screen flex items-center justify-center bg-[var(--bg)] px-4">
+      <div className="max-w-md w-full bg-[var(--card)] border border-[var(--border)] p-6 rounded-2xl space-y-4 text-center text-[var(--text)] shadow">
+        <h1 className="text-2xl font-bold">
+          Verify your email
+        </h1>
 
-        <p className="text-sm text-gray-600">
+        <p className="text-sm text-[var(--muted)]">
           To continue with mentorship features, please verify your email address.
         </p>
 
         {message && (
-          <p className="text-sm text-blue-600">{message}</p>
+          <p className="text-sm text-[var(--primary)]">
+            {message}
+          </p>
         )}
 
         <button
           onClick={resendVerification}
           disabled={loading}
-          className="w-full bg-black text-white py-2 rounded disabled:opacity-50"
+          className="w-full bg-[var(--primary)] text-white py-2 rounded disabled:opacity-50"
         >
           {loading ? "Sending..." : "Resend verification email"}
         </button>
 
         <button
           onClick={() => router.push("/dashboard")}
-          className="w-full border py-2 rounded"
+          className="w-full border border-[var(--border)] py-2 rounded hover:bg-[var(--bg)]"
         >
           Back to Dashboard
         </button>

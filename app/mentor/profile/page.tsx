@@ -26,7 +26,6 @@ export default function MentorProfilePage() {
         return;
       }
 
-      // 🔹 Enforce mentor-only access
       const { data: profile } = await supabase
         .from("profiles")
         .select("role")
@@ -38,7 +37,6 @@ export default function MentorProfilePage() {
         return;
       }
 
-      // 🔹 Prevent duplicate profile creation
       const { data } = await supabase
         .from("mentor_profiles")
         .select("id")
@@ -92,22 +90,22 @@ export default function MentorProfilePage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center">
-      <div className="w-full max-w-md border p-6 rounded space-y-4">
+    <div className="min-h-screen flex items-center justify-center bg-[var(--bg)] px-4">
+      <div className="w-full max-w-md bg-[var(--card)] border border-[var(--border)] p-6 rounded-2xl space-y-4 shadow text-[var(--text)]">
         <h1 className="text-2xl font-bold text-center">
           Mentor Profile
         </h1>
 
         <input
           placeholder="Full Name"
-          className="w-full border p-2 rounded"
+          className="w-full border border-[var(--border)] bg-[var(--bg)] text-[var(--text)] p-2 rounded focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
           value={fullName}
           onChange={(e) => setFullName(e.target.value)}
         />
 
         <input
           placeholder="Area of Expertise (e.g. Startup, Career, Finance)"
-          className="w-full border p-2 rounded"
+          className="w-full border border-[var(--border)] bg-[var(--bg)] text-[var(--text)] p-2 rounded focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
           value={expertise}
           onChange={(e) => setExpertise(e.target.value)}
         />
@@ -115,13 +113,13 @@ export default function MentorProfilePage() {
         <input
           type="number"
           placeholder="Years of Experience"
-          className="w-full border p-2 rounded"
+          className="w-full border border-[var(--border)] bg-[var(--bg)] text-[var(--text)] p-2 rounded focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
           value={experience}
           onChange={(e) => setExperience(e.target.value)}
         />
 
         <select
-          className="w-full border p-2 rounded"
+          className="w-full border border-[var(--border)] bg-[var(--bg)] text-[var(--text)] p-2 rounded focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
           value={availability}
           onChange={(e) => setAvailability(e.target.value)}
         >
@@ -132,7 +130,7 @@ export default function MentorProfilePage() {
         </select>
 
         {error && (
-          <p className="text-red-600 text-sm text-center">
+          <p className="text-[rgb(239,68,68)] text-sm text-center">
             {error}
           </p>
         )}
@@ -140,7 +138,7 @@ export default function MentorProfilePage() {
         <button
           disabled={loading}
           onClick={saveProfile}
-          className="w-full bg-black text-white py-2 rounded disabled:opacity-50"
+          className="w-full bg-[var(--primary)] text-white py-2 rounded hover:opacity-90 disabled:opacity-50"
         >
           {loading ? "Saving..." : "Save Profile"}
         </button>

@@ -35,11 +35,13 @@ function LoginForm() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
-      <div className="w-full max-w-md bg-white border rounded-xl shadow-sm p-6 space-y-5">
+    <div className="min-h-screen flex items-center justify-center bg-[var(--bg)] px-4">
+      <div className="w-full max-w-md bg-[var(--card)] border border-[var(--border)] rounded-2xl shadow p-6 space-y-5 text-[var(--text)]">
         <div className="text-center space-y-1">
-          <h1 className="text-2xl font-bold">Welcome back</h1>
-          <p className="text-sm text-gray-600">
+          <h1 className="text-2xl font-bold">
+            Welcome back
+          </h1>
+          <p className="text-sm text-[var(--muted)]">
             Continue your journey from career to work
           </p>
         </div>
@@ -47,7 +49,7 @@ function LoginForm() {
         <input
           type="email"
           placeholder="Email address"
-          className="w-full border p-2.5 rounded focus:ring-2 focus:ring-blue-500"
+          className="w-full border border-[var(--border)] bg-[var(--bg)] text-[var(--text)] p-2.5 rounded focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
         />
@@ -55,31 +57,36 @@ function LoginForm() {
         <input
           type="password"
           placeholder="Password"
-          className="w-full border p-2.5 rounded focus:ring-2 focus:ring-blue-500"
+          className="w-full border border-[var(--border)] bg-[var(--bg)] text-[var(--text)] p-2.5 rounded focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
         />
 
         {error && (
-          <p className="text-red-600 text-sm text-center">{error}</p>
+          <p className="text-[rgb(239,68,68)] text-sm text-center">
+            {error}
+          </p>
         )}
 
         <button
           onClick={login}
           disabled={loading}
-          className="w-full bg-blue-600 text-white py-2.5 rounded hover:bg-blue-700 disabled:opacity-50"
+          className="w-full bg-[var(--primary)] text-white py-2.5 rounded hover:opacity-90 disabled:opacity-50"
         >
           {loading ? "Signing in..." : "Sign In"}
         </button>
 
-        <p className="text-sm text-center text-gray-500">
+        <p className="text-sm text-center text-[var(--muted)]">
           New here?{" "}
-          <Link href="/signup" className="underline">
+          <Link
+            href="/signup"
+            className="underline text-[var(--primary)]"
+          >
             Create an account
           </Link>
         </p>
 
-        <p className="text-xs text-gray-400 text-center">
+        <p className="text-xs text-[var(--muted)] text-center">
           <Link href="/privacy" className="underline">
             Privacy
           </Link>{" "}
@@ -95,7 +102,13 @@ function LoginForm() {
 
 export default function LoginPage() {
   return (
-    <Suspense fallback={<p className="p-8">Loading...</p>}>
+    <Suspense
+      fallback={
+        <p className="p-8 bg-[var(--bg)] text-[var(--muted)]">
+          Loading...
+        </p>
+      }
+    >
       <LoginForm />
     </Suspense>
   );

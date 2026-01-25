@@ -48,63 +48,70 @@ export default function MentorStatusPage() {
     loadStatus();
   }, [router]);
 
-  if (loading) {
-    return <p className="p-6">Loading mentor request status...</p>;
-  }
+  if (loading)
+    return (
+      <p className="p-6 bg-[var(--bg)] text-[var(--muted)]">
+        Loading mentor request status...
+      </p>
+    );
 
   return (
-    <div className="min-h-screen flex items-center justify-center">
-      <div className="w-full max-w-md border p-6 rounded space-y-4">
+    <div className="min-h-screen flex items-center justify-center bg-[var(--bg)] px-4">
+      <div className="w-full max-w-md bg-[var(--card)] border border-[var(--border)] p-6 rounded-2xl space-y-4 shadow text-[var(--text)]">
         <h1 className="text-2xl font-bold text-center">
           Mentor Request Status
         </h1>
 
-        <div className="border p-4 rounded bg-gray-50">
+        <div className="border border-[var(--border)] p-4 rounded bg-[var(--bg)]">
           <p className="font-medium">
             Status:
-            <span className="ml-2 capitalize font-semibold">
+            <span className="ml-2 capitalize font-semibold text-[var(--primary)]">
               {request?.status}
             </span>
           </p>
 
-          <p className="text-sm text-gray-600 mt-2">
+          <p className="text-sm text-[var(--muted)] mt-2">
             Requested on{" "}
             {new Date(request!.created_at).toDateString()}
           </p>
         </div>
 
-        <div className="border p-4 rounded">
-          <p className="font-medium mb-1">Your message</p>
-          <p className="text-sm text-gray-700">
+        <div className="border border-[var(--border)] p-4 rounded bg-[var(--bg)]">
+          <p className="font-medium mb-1">
+            Your message
+          </p>
+          <p className="text-sm text-[var(--muted)]">
             {request?.message}
           </p>
         </div>
 
         {request?.status === "accepted" && (
-          <p className="text-sm text-green-600 text-center">
+          <p className="text-sm text-[rgb(34,197,94)] text-center">
             🎉 Your mentor has accepted your request.
             Further steps will be shared soon.
           </p>
         )}
 
         {request?.status === "rejected" && (
-          <p className="text-sm text-red-600 text-center">
+          <p className="text-sm text-[rgb(239,68,68)] text-center">
             ❌ Your mentor could not accept the request at this time.
           </p>
         )}
 
         {request?.status === "pending" && (
-          <p className="text-sm text-gray-600 text-center">
+          <p className="text-sm text-[var(--muted)] text-center">
             ⏳ Your request is under review.
           </p>
         )}
 
         <button
           onClick={() => router.push("/dashboard")}
-          className="w-full mt-4 border py-2 rounded"
+          className="w-full mt-4 border border-[var(--border)] py-2 rounded hover:bg-[var(--bg)]"
         >
           Back to Dashboard
         </button>
+
+        <BackButton fallback="/dashboard" />
       </div>
     </div>
   );

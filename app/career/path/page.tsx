@@ -40,94 +40,101 @@ export default function CareerPathPage() {
     loadCareerPath();
   }, [router]);
 
-  if (loading) return <p className="p-8">Loading your path...</p>;
+  if (loading)
+    return (
+      <p className="p-8 bg-[var(--bg)] text-[var(--muted)]">
+        Loading your path...
+      </p>
+    );
 
   return (
-    <div className="p-8 max-w-xl mx-auto space-y-6">
-      <h1 className="text-2xl font-bold text-center">
-        Your Career Path
-      </h1>
+    <div className="min-h-screen bg-[var(--bg)] p-8">
+      <div className="max-w-xl mx-auto space-y-6 bg-[var(--card)] border border-[var(--border)] p-6 rounded-2xl shadow text-[var(--text)]">
+        <h1 className="text-2xl font-bold text-center">
+          Your Career Path
+        </h1>
 
-      {/* ===== EXPLORATION ===== */}
-      {stage === "exploration" && (
-        <div className="space-y-4">
-          <p className="text-gray-700">
-            You’re at the exploration stage.  
-            The goal right now is to understand basics and try things without pressure.
-          </p>
+        {/* ===== EXPLORATION ===== */}
+        {stage === "exploration" && (
+          <div className="space-y-4">
+            <p className="text-[var(--muted)]">
+              You’re at the exploration stage.  
+              The goal right now is to understand basics and try things without pressure.
+            </p>
 
-          <ul className="list-disc pl-5 text-sm text-gray-600">
-            <li>Learn foundational skills</li>
-            <li>Explore different domains</li>
-            <li>Try small projects</li>
-          </ul>
+            <ul className="list-disc pl-5 text-sm text-[var(--muted)]">
+              <li>Learn foundational skills</li>
+              <li>Explore different domains</li>
+              <li>Try small projects</li>
+            </ul>
 
-          <Link
-            href="/learning/courses"
-            className="block text-center bg-blue-600 text-white rounded p-3 hover:bg-blue-700"
-          >
-            Start Learning
-          </Link>
-        </div>
-      )}
+            <Link
+              href="/learning/courses"
+              className="block text-center bg-[var(--primary)] text-white rounded p-3 hover:opacity-90"
+            >
+              Start Learning
+            </Link>
+          </div>
+        )}
 
-      {/* ===== FOCUS ===== */}
-      {stage === "focus" && (
-        <div className="space-y-4">
-          <p className="text-gray-700">
-            You have some clarity.  
-            Now it’s time to build job-ready skills and gain confidence.
-          </p>
+        {/* ===== FOCUS ===== */}
+        {stage === "focus" && (
+          <div className="space-y-4">
+            <p className="text-[var(--muted)]">
+              You have some clarity.  
+              Now it’s time to build job-ready skills and gain confidence.
+            </p>
 
-          <ul className="list-disc pl-5 text-sm text-gray-600">
-            <li>Follow a focused skill path</li>
-            <li>Practice with guided projects</li>
-            <li>Prepare for real opportunities</li>
-          </ul>
+            <ul className="list-disc pl-5 text-sm text-[var(--muted)]">
+              <li>Follow a focused skill path</li>
+              <li>Practice with guided projects</li>
+              <li>Prepare for real opportunities</li>
+            </ul>
 
-          <Link
-            href="/learning/courses"
-            className="block text-center bg-blue-600 text-white rounded p-3 hover:bg-blue-700"
-          >
-            Continue Learning
-          </Link>
-        </div>
-      )}
+            <Link
+              href="/learning/courses"
+              className="block text-center bg-[var(--primary)] text-white rounded p-3 hover:opacity-90"
+            >
+              Continue Learning
+            </Link>
+          </div>
+        )}
 
-      {/* ===== EXECUTION ===== */}
-      {stage === "execution" && (
-        <div className="space-y-4">
-          <p className="text-gray-700">
-            You’re ready to apply your skills.  
-            The focus now is getting real-world experience.
-          </p>
+        {/* ===== EXECUTION ===== */}
+        {stage === "execution" && (
+          <div className="space-y-4">
+            <p className="text-[var(--muted)]">
+              You’re ready to apply your skills.  
+              The focus now is getting real-world experience.
+            </p>
 
-          <ul className="list-disc pl-5 text-sm text-gray-600">
-            <li>Apply to projects or internships</li>
-            <li>Look for entry-level roles</li>
-            <li>Track applications</li>
-          </ul>
+            <ul className="list-disc pl-5 text-sm text-[var(--muted)]">
+              <li>Apply to projects or internships</li>
+              <li>Look for entry-level roles</li>
+              <li>Track applications</li>
+            </ul>
 
-          <Link
-            href="/work/projects"
-            className="block text-center bg-green-600 text-white rounded p-3 hover:bg-green-700"
-          >
-            Find Opportunities
-          </Link>
-        </div>
-      )}
+            <Link
+              href="/work/projects"
+              className="block text-center bg-[var(--primary)] text-white rounded p-3 hover:opacity-90"
+            >
+              Find Opportunities
+            </Link>
+          </div>
+        )}
 
-      {/* SAFETY */}
-      {!stage && (
-        <div className="text-center">
-          <Link
-            href="/career/discovery"
-            className="text-blue-600 underline"
-          >
-            Start career discovery
-          </Link>
-        </div>
-      )}
+        {/* SAFETY */}
+        {!stage && (
+          <div className="text-center">
+            <Link
+              href="/career/discovery"
+              className="text-[var(--primary)] underline"
+            >
+              Start career discovery
+            </Link>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

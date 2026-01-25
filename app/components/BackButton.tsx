@@ -14,11 +14,9 @@ export default function BackButton({
   const router = useRouter();
 
   const goBack = () => {
-    // If user has history, go back
     if (window.history.length > 1) {
       router.back();
     } else {
-      // Fallback route
       router.push(fallback);
     }
   };
@@ -26,7 +24,7 @@ export default function BackButton({
   return (
     <button
       onClick={goBack}
-      className="text-sm text-gray-700 hover:underline"
+      className="text-sm text-[var(--primary)] hover:underline"
     >
       {label}
     </button>

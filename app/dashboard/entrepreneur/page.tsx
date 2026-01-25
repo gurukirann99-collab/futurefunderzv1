@@ -34,9 +34,12 @@ export default function EntrepreneurDashboard() {
   }, [router]);
 
   return (
-    <div className="p-8">
-      <h1 className="text-2xl font-bold">Entrepreneur Dashboard</h1>
-      <p className="text-sm text-gray-600">
+    <div className="min-h-screen bg-[var(--bg)] p-8 text-[var(--text)]">
+      <h1 className="text-2xl font-bold">
+        Entrepreneur Dashboard
+      </h1>
+
+      <p className="text-sm text-[var(--muted)] mt-1">
         Entrepreneur tools will appear here.
       </p>
     </div>

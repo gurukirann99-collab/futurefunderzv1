@@ -57,22 +57,47 @@ export default function EditMentorProfilePage() {
   };
 
   return (
-    <div className="p-6 max-w-md space-y-4">
-      <h1 className="text-2xl font-bold">Edit Mentor Profile</h1>
+    <div className="min-h-screen bg-[var(--bg)] flex items-center justify-center px-4">
+      <div className="w-full max-w-md bg-[var(--card)] border border-[var(--border)] p-6 rounded-2xl space-y-4 shadow text-[var(--text)]">
+        <h1 className="text-2xl font-bold">
+          Edit Mentor Profile
+        </h1>
 
-      <input value={fullName} onChange={e => setFullName(e.target.value)} className="border p-2 w-full" />
-      <input value={expertise} onChange={e => setExpertise(e.target.value)} className="border p-2 w-full" />
-      <input value={experience} onChange={e => setExperience(e.target.value)} className="border p-2 w-full" />
-      <select value={availability} onChange={e => setAvailability(e.target.value)} className="border p-2 w-full">
-        <option value="weekdays">Weekdays</option>
-        <option value="weekends">Weekends</option>
-        <option value="both">Both</option>
-      </select>
+        <input
+          value={fullName}
+          onChange={(e) => setFullName(e.target.value)}
+          className="w-full border border-[var(--border)] bg-[var(--bg)] text-[var(--text)] p-2 rounded focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
+        />
 
-      <button onClick={updateProfile} className="border px-4 py-2 rounded">
-        Save Changes
-      </button>
-    
+        <input
+          value={expertise}
+          onChange={(e) => setExpertise(e.target.value)}
+          className="w-full border border-[var(--border)] bg-[var(--bg)] text-[var(--text)] p-2 rounded focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
+        />
+
+        <input
+          value={experience}
+          onChange={(e) => setExperience(e.target.value)}
+          className="w-full border border-[var(--border)] bg-[var(--bg)] text-[var(--text)] p-2 rounded focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
+        />
+
+        <select
+          value={availability}
+          onChange={(e) => setAvailability(e.target.value)}
+          className="w-full border border-[var(--border)] bg-[var(--bg)] text-[var(--text)] p-2 rounded focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
+        >
+          <option value="weekdays">Weekdays</option>
+          <option value="weekends">Weekends</option>
+          <option value="both">Both</option>
+        </select>
+
+        <button
+          onClick={updateProfile}
+          className="w-full bg-[var(--primary)] text-white py-2 rounded hover:opacity-90"
+        >
+          Save Changes
+        </button>
+      </div>
     </div>
   );
 }

@@ -13,7 +13,6 @@ export default function StudentAssessmentPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  // 🔹 Prevent duplicate assessment (V1 rule)
   useEffect(() => {
     const checkExisting = async () => {
       const {
@@ -57,7 +56,6 @@ export default function StudentAssessmentPage() {
       return;
     }
 
-    // 🔹 RULE-BASED STAGE LOGIC (V1)
     let derivedStage = "Exploration";
 
     if (
@@ -67,7 +65,6 @@ export default function StudentAssessmentPage() {
       derivedStage = "Focus";
     }
 
-    // 1️⃣ Save assessment answers
     const { error: assessmentError } = await supabase
       .from("student_assessments")
       .insert({
@@ -82,36 +79,29 @@ export default function StudentAssessmentPage() {
       return;
     }
 
-    // 2️⃣ SAVE JOURNEY MEMORY (V2 · PILLAR 1)
-    const { error: journeyError } = await supabase
+    await supabase
       .from("student_journey_history")
       .insert({
         user_id: session.user.id,
         stage: derivedStage,
       });
 
-    if (journeyError) {
-      console.error("Journey insert failed:", journeyError.message);
-    }
-
-    // 3️⃣ Redirect to result
     router.replace("/student/result");
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center">
-      <div className="w-full max-w-md border p-6 rounded space-y-6">
+    <div className="min-h-screen flex items-center justify-center bg-[var(--bg)] px-4">
+      <div className="w-full max-w-md bg-[var(--card)] border border-[var(--border)] p-6 rounded-2xl space-y-6 text-[var(--text)] shadow">
         <h1 className="text-2xl font-bold text-center">
           Career Assessment
         </h1>
 
-        {/* Question 1 */}
         <div>
           <p className="font-medium mb-2">
             How clear are you about your career direction?
           </p>
           <select
-            className="w-full border p-2 rounded"
+            className="w-full border border-[var(--border)] bg-[var(--bg)] p-2 rounded"
             value={careerClarity}
             onChange={(e) => setCareerClarity(e.target.value)}
           >
@@ -123,13 +113,12 @@ export default function StudentAssessmentPage() {
           </select>
         </div>
 
-        {/* Question 2 */}
         <div>
           <p className="font-medium mb-2">
             How confident are you in your current skills?
           </p>
           <select
-            className="w-full border p-2 rounded"
+            className="w-full border border-[var(--border)] bg-[var(--bg)] p-2 rounded"
             value={skillLevel}
             onChange={(e) => setSkillLevel(e.target.value)}
           >
@@ -141,7 +130,7 @@ export default function StudentAssessmentPage() {
         </div>
 
         {error && (
-          <p className="text-red-600 text-sm text-center">
+          <p className="text-[rgb(239,68,68)] text-sm text-center">
             {error}
           </p>
         )}
@@ -149,7 +138,7 @@ export default function StudentAssessmentPage() {
         <button
           disabled={loading || !careerClarity || !skillLevel}
           onClick={submitAssessment}
-          className="w-full bg-black text-white py-2 rounded disabled:opacity-50"
+          className="w-full bg-[var(--primary)] text-white py-2 rounded disabled:opacity-50"
         >
           {loading ? "Submitting..." : "Submit Assessment"}
         </button>

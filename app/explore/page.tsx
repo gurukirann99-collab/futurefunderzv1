@@ -6,58 +6,52 @@ export default function ExplorePage() {
   const router = useRouter();
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
-      <div className="max-w-md w-full space-y-6 text-center">
-        <h1 className="text-2xl font-bold">Explore FutureFunderz</h1>
+    <div className="min-h-screen flex items-center justify-center bg-[var(--bg)] px-4">
+      <div className="max-w-md w-full space-y-6 text-center bg-[var(--card)] border border-[var(--border)] p-6 rounded-2xl shadow">
+        <h1 className="text-2xl font-bold text-[var(--text)]">
+          Explore FutureFunderz
+        </h1>
 
-        <p className="text-sm text-gray-600">
+        <p className="text-sm text-[var(--muted)]">
           Tell us what you’re here for. We’ll guide you step by step.
         </p>
 
         <div className="space-y-4 text-left">
-          {/* 🎓 CAREER */}
-          <button
-            onClick={() => router.push("/intent?goal=career")}
-            className="w-full border rounded p-4 hover:bg-gray-100"
-          >
-            <div className="font-medium">🎓 Build my career</div>
-            <p className="text-sm text-gray-500">
-              I want clarity, direction, and a long-term path
-            </p>
-          </button>
-
-          {/* 📘 LEARNING */}
-          <button
-            onClick={() => router.push("/intent?goal=learning")}
-            className="w-full border rounded p-4 hover:bg-gray-100"
-          >
-            <div className="font-medium">📘 Start learning</div>
-            <p className="text-sm text-gray-500">
-              I want to learn skills right now
-            </p>
-          </button>
-
-          {/* 💼 WORK */}
-          <button
-            onClick={() => router.push("/intent?goal=work")}
-            className="w-full border rounded p-4 hover:bg-gray-100"
-          >
-            <div className="font-medium">💼 Find work</div>
-            <p className="text-sm text-gray-500">
-              I’m looking for projects, internships, or jobs
-            </p>
-          </button>
-
-          {/* 🤔 CONFUSED */}
-          <button
-            onClick={() => router.push("/confused")}
-            className="w-full border rounded p-4 hover:bg-gray-100"
-          >
-            <div className="font-medium">🤔 I’m confused</div>
-            <p className="text-sm text-gray-500">
-              I don’t know what to do next
-            </p>
-          </button>
+          {[
+            {
+              label: "🎓 Build my career",
+              desc: "I want clarity, direction, and a long-term path",
+              href: "/intent?goal=career",
+            },
+            {
+              label: "📘 Start learning",
+              desc: "I want to learn skills right now",
+              href: "/intent?goal=learning",
+            },
+            {
+              label: "💼 Find work",
+              desc: "I’m looking for projects, internships, or jobs",
+              href: "/intent?goal=work",
+            },
+            {
+              label: "🤔 I’m confused",
+              desc: "I don’t know what to do next",
+              href: "/confused",
+            },
+          ].map((item) => (
+            <button
+              key={item.href}
+              onClick={() => router.push(item.href)}
+              className="w-full border border-[var(--border)] rounded-xl p-4 hover:bg-[var(--bg)] transition"
+            >
+              <div className="font-medium text-[var(--text)]">
+                {item.label}
+              </div>
+              <p className="text-sm text-[var(--muted)]">
+                {item.desc}
+              </p>
+            </button>
+          ))}
         </div>
       </div>
     </div>

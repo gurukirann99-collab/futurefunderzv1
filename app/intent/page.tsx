@@ -9,13 +9,13 @@ function IntentContent() {
   const goal = params.get("goal");
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
-      <div className="w-full max-w-xl bg-white rounded-xl shadow-sm p-8 space-y-6">
+    <div className="min-h-screen bg-[var(--bg)] flex items-center justify-center px-4">
+      <div className="w-full max-w-xl bg-[var(--card)] border border-[var(--border)] rounded-xl shadow p-8 space-y-6 text-[var(--text)]">
         <div className="text-center space-y-2">
-          <h1 className="text-2xl font-bold text-gray-900">
+          <h1 className="text-2xl font-bold">
             What would you like to do?
           </h1>
-          <p className="text-sm text-gray-600">
+          <p className="text-sm text-[var(--muted)]">
             We’ll guide you step by step.
           </p>
         </div>
@@ -91,7 +91,7 @@ function IntentContent() {
             />
             <Link
               href="/explore"
-              className="block text-center text-sm text-gray-500 underline"
+              className="block text-center text-sm text-[var(--muted)] underline"
             >
               ← Back to explore
             </Link>
@@ -104,7 +104,13 @@ function IntentContent() {
 
 export default function IntentPage() {
   return (
-    <Suspense fallback={<p className="p-8">Loading...</p>}>
+    <Suspense
+      fallback={
+        <p className="p-8 bg-[var(--bg)] text-[var(--muted)]">
+          Loading...
+        </p>
+      }
+    >
       <IntentContent />
     </Suspense>
   );
@@ -125,15 +131,15 @@ function IntentCard({
   return (
     <Link
       href={href}
-      className="block border rounded-lg p-4 hover:border-blue-500 hover:shadow transition"
+      className="block border border-[var(--border)] rounded-lg p-4 hover:border-[var(--primary)] hover:shadow transition"
     >
       <div className="flex items-start gap-3">
         <div className="text-xl">{icon}</div>
         <div>
-          <div className="font-medium text-gray-900">
+          <div className="font-medium text-[var(--text)]">
             {title}
           </div>
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-[var(--muted)]">
             {desc}
           </p>
         </div>

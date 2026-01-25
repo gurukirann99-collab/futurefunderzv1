@@ -31,7 +31,6 @@ const JOBS = [
 ];
 
 export default function JobsPage() {
-  // 🔒 AUTH GUARD
   const { loading } = useRequireAuth();
 
   const [userId, setUserId] = useState<string>("");
@@ -64,43 +63,51 @@ export default function JobsPage() {
     load();
   }, []);
 
-  if (loading || pageLoading) {
-    return <p className="p-8">Loading jobs...</p>;
-  }
+  if (loading || pageLoading)
+    return (
+      <p className="p-8 bg-[var(--bg)] text-[var(--muted)]">
+        Loading jobs...
+      </p>
+    );
 
   return (
-    <div className="p-8 max-w-4xl mx-auto space-y-6">
-      <BackButton />
+    <div className="min-h-screen bg-[var(--bg)]">
+      <div className="p-8 max-w-4xl mx-auto space-y-6 text-[var(--text)]">
+        <BackButton />
 
-      <div>
-        <h1 className="text-2xl font-bold">Jobs</h1>
-        <p className="text-sm text-gray-600">
-          Apply to entry-level roles based on your current skills.
-        </p>
-      </div>
+        <div>
+          <h1 className="text-2xl font-bold">
+            Jobs
+          </h1>
+          <p className="text-sm text-[var(--muted)]">
+            Apply to entry-level roles based on your current skills.
+          </p>
+        </div>
 
-      <div className="grid md:grid-cols-2 gap-4">
-        {JOBS.map((job) => (
-          <div
-            key={job.id}
-            className="border rounded p-4 space-y-3 hover:shadow-sm"
-          >
-            <div>
-              <h2 className="font-semibold">{job.title}</h2>
-              <p className="text-xs text-gray-500">
-                {job.company} • {job.location} • {job.type}
-              </p>
+        <div className="grid md:grid-cols-2 gap-4">
+          {JOBS.map((job) => (
+            <div
+              key={job.id}
+              className="bg-[var(--card)] border border-[var(--border)] rounded-xl p-4 space-y-3 hover:shadow"
+            >
+              <div>
+                <h2 className="font-semibold">
+                  {job.title}
+                </h2>
+                <p className="text-xs text-[var(--muted)]">
+                  {job.company} • {job.location} • {job.type}
+                </p>
+              </div>
+
+              <ApplyButton
+                userId={userId}
+                opportunityId={job.id}
+                opportunityType="job"
+                alreadyApplied={appliedIds.includes(job.id)}
+              />
             </div>
-
-            {/* ✅ REAL APPLY BUTTON */}
-            <ApplyButton
-              userId={userId}
-              opportunityId={job.id}
-              opportunityType="job"
-              alreadyApplied={appliedIds.includes(job.id)}
-            />
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
     </div>
   );

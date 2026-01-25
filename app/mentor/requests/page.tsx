@@ -20,7 +20,6 @@ export default function MentorRequestsPage() {
   const [requests, setRequests] = useState<MentorRequest[]>([]);
   const [loading, setLoading] = useState(true);
 
-  
   useEffect(() => {
     const loadRequests = async () => {
       const {
@@ -32,7 +31,6 @@ export default function MentorRequestsPage() {
         return;
       }
 
-      // 🔹 Mentor-only access
       const { data: profile } = await supabase
         .from("profiles")
         .select("role")
@@ -44,7 +42,6 @@ export default function MentorRequestsPage() {
         return;
       }
 
-      // 🔹 Load requests sent to this mentor
       const { data } = await supabase
         .from("mentor_requests")
         .select(
@@ -78,18 +75,21 @@ export default function MentorRequestsPage() {
     );
   };
 
-  if (loading) {
-    return <p className="p-6">Loading mentor requests...</p>;
-  }
+  if (loading)
+    return (
+      <p className="p-6 bg-[var(--bg)] text-[var(--muted)]">
+        Loading mentor requests...
+      </p>
+    );
 
   return (
-    <div className="p-6 space-y-4">
+    <div className="min-h-screen bg-[var(--bg)] p-6 space-y-4 text-[var(--text)]">
       <h1 className="text-2xl font-bold">
         Mentor Requests
       </h1>
 
       {requests.length === 0 && (
-        <p className="text-gray-600">
+        <p className="text-[var(--muted)]">
           No mentorship requests yet.
         </p>
       )}
@@ -97,13 +97,13 @@ export default function MentorRequestsPage() {
       {requests.map((req) => (
         <div
           key={req.id}
-          className="border p-4 rounded space-y-2"
+          className="bg-[var(--card)] border border-[var(--border)] p-4 rounded-xl space-y-2"
         >
           <p className="font-medium">
             Request from {req.requester_role}
           </p>
 
-          <p className="text-sm text-gray-600">
+          <p className="text-sm text-[var(--muted)]">
             {new Date(req.created_at).toDateString()}
           </p>
 
@@ -113,7 +113,7 @@ export default function MentorRequestsPage() {
 
           <p className="text-sm font-medium">
             Status:{" "}
-            <span className="capitalize">
+            <span className="capitalize text-[var(--primary)]">
               {req.status}
             </span>
           </p>
@@ -121,28 +121,24 @@ export default function MentorRequestsPage() {
           {req.status === "pending" && (
             <div className="flex gap-2">
               <button
-                onClick={() =>
-                  updateStatus(req.id, "accepted")
-                }
-                className="border px-3 py-1 rounded text-green-600"
+                onClick={() => updateStatus(req.id, "accepted")}
+                className="border border-[var(--border)] px-3 py-1 rounded text-[rgb(34,197,94)] hover:bg-[var(--bg)]"
               >
                 Accept
               </button>
 
               <button
-                onClick={() =>
-                  updateStatus(req.id, "rejected")
-                }
-                className="border px-3 py-1 rounded text-red-600"
+                onClick={() => updateStatus(req.id, "rejected")}
+                className="border border-[var(--border)] px-3 py-1 rounded text-[rgb(239,68,68)] hover:bg-[var(--bg)]"
               >
                 Reject
               </button>
-                    
             </div>
           )}
         </div>
       ))}
-    <BackButton fallback="/dashboard" />
+
+      <BackButton fallback="/dashboard" />
     </div>
   );
 }

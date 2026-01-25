@@ -55,23 +55,29 @@ const PROJECT_MAP: Record<
 };
 
 export default function ProjectDetailPage() {
-  // 🔒 AUTH GUARD (REQUIRED)
   const { loading } = useRequireAuth();
-
   const params = useParams();
   const projectId = params.id as string;
 
-  if (loading) {
-    return <p className="p-8">Loading project...</p>;
-  }
+  if (loading)
+    return (
+      <p className="p-8 bg-[var(--bg)] text-[var(--muted)]">
+        Loading project...
+      </p>
+    );
 
   const project = PROJECT_MAP[projectId];
 
   if (!project) {
     return (
-      <div className="p-8 text-center">
-        <p className="text-gray-600">Project not found.</p>
-        <Link href="/work/projects" className="text-blue-600 underline">
+      <div className="p-8 text-center bg-[var(--bg)] text-[var(--text)]">
+        <p className="text-[var(--muted)]">
+          Project not found.
+        </p>
+        <Link
+          href="/work/projects"
+          className="text-[var(--primary)] underline"
+        >
           Back to projects
         </Link>
       </div>
@@ -79,44 +85,53 @@ export default function ProjectDetailPage() {
   }
 
   return (
-    <div className="p-8 max-w-xl mx-auto space-y-6">
-      <h1 className="text-2xl font-bold">{project.title}</h1>
+    <div className="min-h-screen bg-[var(--bg)]">
+      <div className="p-8 max-w-xl mx-auto space-y-6 text-[var(--text)]">
+        <h1 className="text-2xl font-bold">
+          {project.title}
+        </h1>
 
-      <p className="text-gray-700">{project.description}</p>
+        <p className="text-[var(--muted)]">
+          {project.description}
+        </p>
 
-      <div>
-        <h2 className="font-semibold mb-2">Steps to complete</h2>
-        <ol className="list-decimal pl-5 text-sm text-gray-600 space-y-1">
-          {project.steps.map((step, index) => (
-            <li key={index}>{step}</li>
-          ))}
-        </ol>
-      </div>
+        <div>
+          <h2 className="font-semibold mb-2">
+            Steps to complete
+          </h2>
+          <ol className="list-decimal pl-5 text-sm text-[var(--muted)] space-y-1">
+            {project.steps.map((step, index) => (
+              <li key={index}>{step}</li>
+            ))}
+          </ol>
+        </div>
 
-      <div>
-        <h2 className="font-semibold mb-2">Skills you’ll practice</h2>
-        <ul className="list-disc pl-5 text-sm text-gray-600 space-y-1">
-          {project.skills.map((skill, index) => (
-            <li key={index}>{skill}</li>
-          ))}
-        </ul>
-      </div>
+        <div>
+          <h2 className="font-semibold mb-2">
+            Skills you’ll practice
+          </h2>
+          <ul className="list-disc pl-5 text-sm text-[var(--muted)] space-y-1">
+            {project.skills.map((skill, index) => (
+              <li key={index}>{skill}</li>
+            ))}
+          </ul>
+        </div>
 
-      <div className="space-y-3">
-        {/* ✅ REAL NEXT STEP */}
-        <Link
-          href={`/learning/progress?project=${projectId}`}
-          className="block text-center bg-green-600 text-white rounded p-3 hover:bg-green-700"
-        >
-          I’ll start working on this →
-        </Link>
+        <div className="space-y-3">
+          <Link
+            href={`/learning/progress?project=${projectId}`}
+            className="block text-center bg-[rgb(34,197,94)] text-white rounded p-3 hover:opacity-90"
+          >
+            I’ll start working on this →
+          </Link>
 
-        <Link
-          href="/learning/courses"
-          className="block text-center text-sm text-gray-500 underline"
-        >
-          Go back to learning
-        </Link>
+          <Link
+            href="/learning/courses"
+            className="block text-center text-sm text-[var(--muted)] underline"
+          >
+            Go back to learning
+          </Link>
+        </div>
       </div>
     </div>
   );

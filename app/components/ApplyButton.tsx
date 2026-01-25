@@ -44,7 +44,7 @@ export default function ApplyButton({
     return (
       <button
         disabled
-        className="text-sm bg-green-100 text-green-700 px-3 py-2 rounded"
+        className="text-sm px-3 py-2 rounded bg-[rgba(34,197,94,0.15)] text-[rgb(34,197,94)]"
       >
         ✓ Applied
       </button>
@@ -55,7 +55,7 @@ export default function ApplyButton({
     <button
       onClick={handleApply}
       disabled={loading}
-      className="text-sm bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 disabled:opacity-50"
+      className="text-sm bg-[var(--primary)] text-white px-4 py-2 rounded hover:opacity-90 disabled:opacity-50"
     >
       {loading ? "Applying..." : "Apply"}
     </button>

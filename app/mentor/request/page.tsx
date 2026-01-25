@@ -14,7 +14,7 @@ export default function RequestMentorPage() {
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  
+
   useEffect(() => {
     const checkAccess = async () => {
       const {
@@ -39,7 +39,6 @@ export default function RequestMentorPage() {
 
       setRole(profile.role);
 
-      // Prevent duplicate active request
       const { data } = await supabase
         .from("mentor_requests")
         .select("id")
@@ -91,18 +90,18 @@ export default function RequestMentorPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center">
-      <div className="w-full max-w-md border p-6 rounded space-y-4">
+    <div className="min-h-screen flex items-center justify-center bg-[var(--bg)] px-4">
+      <div className="w-full max-w-md bg-[var(--card)] border border-[var(--border)] p-6 rounded-2xl space-y-4 shadow text-[var(--text)]">
         <h1 className="text-2xl font-bold text-center">
           Request a Mentor
         </h1>
 
-        <p className="text-sm text-gray-600 text-center">
+        <p className="text-sm text-[var(--muted)] text-center">
           Tell us why you need mentorship
         </p>
 
         <textarea
-          className="w-full border p-2 rounded"
+          className="w-full border border-[var(--border)] bg-[var(--bg)] text-[var(--text)] p-2 rounded focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
           rows={5}
           placeholder="Briefly explain your situation or challenge..."
           value={message}
@@ -110,7 +109,7 @@ export default function RequestMentorPage() {
         />
 
         {error && (
-          <p className="text-red-600 text-sm text-center">
+          <p className="text-[rgb(239,68,68)] text-sm text-center">
             {error}
           </p>
         )}
@@ -118,13 +117,13 @@ export default function RequestMentorPage() {
         <button
           disabled={loading}
           onClick={submitRequest}
-          className="w-full bg-black text-white py-2 rounded disabled:opacity-50"
+          className="w-full bg-[var(--primary)] text-white py-2 rounded hover:opacity-90 disabled:opacity-50"
         >
           {loading ? "Submitting..." : "Submit Request"}
         </button>
-      </div>
+
         <BackButton fallback="/dashboard" />
+      </div>
     </div>
-    
   );
 }
