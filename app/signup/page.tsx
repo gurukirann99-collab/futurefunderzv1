@@ -53,7 +53,7 @@ function SignupContent() {
         <input
           type="password"
           placeholder="Password"
-          className="w-full border p-2 rounded"
+          className="w-full border border-[var(--border)] bg-[var(--bg)] text-[var(--text)] p-2.5 rounded focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
         />
