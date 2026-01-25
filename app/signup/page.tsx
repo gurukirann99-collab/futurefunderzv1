@@ -37,7 +37,7 @@ function SignupContent() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-[var(--bg)]">
-      <div className="w-full max-w-md bg-[var(--card)] border border-[var(--border)] p-6 rounded-xl space-y-4">
+      <div className="w-full max-w-md bg-[var(--card)] border border-[var(--border)] rounded-2xl shadow p-6 space-y-5 text-[var(--text)]">
         <h1 className="text-2xl font-bold text-center text-[var(--text)]">
           Create your account
         </h1>
@@ -45,7 +45,7 @@ function SignupContent() {
         <input
           type="email"
           placeholder="Email"
-          className="w-full border p-2 rounded"
+          className="w-full border border-[var(--border)] bg-[var(--bg)] text-[var(--text)] p-2.5 rounded focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
         />
@@ -74,7 +74,7 @@ function SignupContent() {
 
         <p className="text-sm text-center">
           Already have an account?{" "}
-          <Link href="/login" className="underline">
+          <Link href="/login" className="underline text-[var(--primary)]">
             Sign in
           </Link>
         </p>
