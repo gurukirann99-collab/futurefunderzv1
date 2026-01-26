@@ -9,36 +9,42 @@ function SignupContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  // ✅ redirect support
   const redirectTo = searchParams.get("redirect") || "/role";
 
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [message, setMessage] = useState("");
 
-  const handleSignup = async () => {
-    setLoading(true);
-    setError("");
-
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-    });
-
-    if (error) {
-      setError(error.message);
-      setLoading(false);
+  const sendLink = async () => {
+    if (!email) {
+      setMessage("Please enter your email.");
       return;
     }
 
-    router.push(redirectTo);
+    setLoading(true);
+    setMessage("");
+
+    const { error } = await supabase.auth.signInWithOtp({
+      email,
+      options: {
+        shouldCreateUser: true,
+        emailRedirectTo: `${window.location.origin}/auth/callback?redirect=${redirectTo}`,
+      },
+    });
+
+    if (error) {
+      setMessage(error.message);
+    } else {
+      setMessage("Check your email for the signup link.");
+    }
+
+    setLoading(false);
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-[var(--bg)]">
       <div className="w-full max-w-md bg-[var(--card)] border border-[var(--border)] rounded-2xl shadow p-6 space-y-5 text-[var(--text)]">
-        <h1 className="text-2xl font-bold text-center text-[var(--text)]">
+        <h1 className="text-2xl font-bold text-center">
           Create your account
         </h1>
 
@@ -50,29 +56,27 @@ function SignupContent() {
           onChange={(e) => setEmail(e.target.value)}
         />
 
-        <input
-          type="password"
-          placeholder="Password"
-          className="w-full border border-[var(--border)] bg-[var(--bg)] text-[var(--text)] p-2.5 rounded focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
-
-        {error && (
-          <p className="text-red-600 text-sm text-center">
-            {error}
+        {message && (
+          <p
+            className={`text-sm text-center ${
+              message.includes("Check")
+                ? "text-green-600"
+                : "text-red-600"
+            }`}
+          >
+            {message}
           </p>
         )}
 
         <button
-          onClick={handleSignup}
+          onClick={sendLink}
           disabled={loading}
-          className="w-full bg-[var(--primary)] text-white py-2 rounded disabled:opacity-50"
+          className="w-full bg-[var(--primary)] text-white py-2.5 rounded hover:opacity-90 disabled:opacity-50"
         >
-          {loading ? "Creating..." : "Sign Up"}
+          {loading ? "Sending..." : "Send Signup Link"}
         </button>
 
-        <p className="text-sm text-center">
+        <p className="text-sm text-center text-[var(--muted)]">
           Already have an account?{" "}
           <Link href="/login" className="underline text-[var(--primary)]">
             Sign in
@@ -80,7 +84,7 @@ function SignupContent() {
         </p>
 
         <p className="text-xs text-[var(--muted)] text-center">
-          By signing up, you agree to our{" "}
+          By continuing, you agree to our{" "}
           <Link href="/terms" className="underline">
             Terms
           </Link>{" "}
@@ -96,13 +100,7 @@ function SignupContent() {
 
 export default function SignupPage() {
   return (
-    <Suspense
-      fallback={
-        <p className="p-8 text-[var(--muted)]">
-          Loading signup...
-        </p>
-      }
-    >
+    <Suspense fallback={<p className="p-8 text-[var(--muted)]">Loading…</p>}>
       <SignupContent />
     </Suspense>
   );
