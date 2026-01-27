@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { ROLE_CAPABILITIES } from "@/lib/modeConfig";
+import { routeByActiveMode } from "@/lib/routeByActiveMode";
 
 type Profile = {
   role: string;
@@ -20,56 +21,53 @@ export default function Navbar() {
   const [lastLogin, setLastLogin] = useState<string | null>(null);
 
   /* ===============================
-     LOAD SESSION + PROFILE
+     LOAD USER + PROFILE (STABLE)
   =============================== */
   useEffect(() => {
     const loadAuth = async () => {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
+      const { data } = await supabase.auth.getUser();
 
-      if (!session) {
+      if (!data?.user) {
         setProfile(null);
         setLastLogin(null);
         setLoading(false);
         return;
       }
 
-      // ✅ CORRECT COLUMN: user_id (not id)
+      const user = data.user;
+
       const { data: p } = await supabase
         .from("profiles")
         .select("role, active_mode")
-        .eq("user_id", session.user.id)
+        .eq("user_id", user.id)
         .single();
 
-      if (!p) {
+      if (!p || !p.role) {
         setProfile(null);
         setLoading(false);
         return;
       }
 
-      // ✅ Ensure active_mode exists
+      // ✅ Safe default for active_mode
       if (!p.active_mode) {
         await supabase
           .from("profiles")
-          .update({ active_mode: p.role })
-          .eq("user_id", session.user.id);
+          .update({ active_mode: "dashboard" })
+          .eq("user_id", user.id);
 
-        p.active_mode = p.role;
+        p.active_mode = "dashboard";
       }
 
       setProfile(p);
 
-      // Last login
-      if (session.user.last_sign_in_at) {
-        const date = new Date(session.user.last_sign_in_at);
+      // Last login (safe)
+      if (user.last_sign_in_at) {
+        const date = new Date(user.last_sign_in_at);
         setLastLogin(
-          date.toLocaleDateString() +
-            " " +
-            date.toLocaleTimeString([], {
-              hour: "2-digit",
-              minute: "2-digit",
-            })
+          `${date.toLocaleDateString()} ${date.toLocaleTimeString([], {
+            hour: "2-digit",
+            minute: "2-digit",
+          })}`
         );
       }
 
@@ -80,15 +78,13 @@ export default function Navbar() {
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange(() => {
-      loadAuth();
-    });
+    } = supabase.auth.onAuthStateChange(() => loadAuth());
 
     return () => subscription.unsubscribe();
   }, []);
 
   /* ===============================
-     LOGOUT
+     LOGOUT (FULL RED)
   =============================== */
   const logout = async () => {
     await supabase.auth.signOut();
@@ -104,10 +100,10 @@ export default function Navbar() {
         : "text-[var(--muted)] hover:text-[var(--text)]"
     }`;
 
-  // Dashboard always routes by MODE, not role
+  // ✅ Dashboard is MODE HOME
   const dashboardHref = profile
-    ? `/${profile.active_mode}/dashboard`
-    : "/role";
+    ? routeByActiveMode(profile.role, profile.active_mode)
+    : "/auth/login";
 
   return (
     <nav className="border-b border-[var(--border)] bg-[var(--bg)]">
@@ -127,12 +123,15 @@ export default function Navbar() {
           {/* LOGGED OUT */}
           {!profile && (
             <>
-              <Link href="/auth/login" className={linkClass("/auth/login")}>
-                Login
+              <Link href="/auth/login" 
+              
+              className="bg-[var(--primary)] text-white px-4 py-2 rounded-md text-sm font-medium hover:opacity-90 transition"
+              >
+              Login
               </Link>
 
               <Link
-                href="/auth/signup"
+                href="/auth/login?intent=signup"
                 className="text-sm bg-[var(--primary)] text-white px-4 py-2 rounded hover:opacity-90 transition"
               >
                 Sign up
@@ -143,44 +142,48 @@ export default function Navbar() {
           {/* LOGGED IN */}
           {profile && (
             <>
-              {/* Dashboard */}
+              {/* DASHBOARD */}
               <Link href={dashboardHref} className={linkClass(dashboardHref)}>
                 Dashboard
               </Link>
 
-              {/* Profile */}
+              {/* PROFILE */}
               <Link href="/profile" className={linkClass("/profile")}>
                 Profile
               </Link>
 
-              {/* MODE SWITCH (ONLY IF MULTIPLE MODES) */}
+              {/* MODE SWITCH */}
               {ROLE_CAPABILITIES[profile.role]?.length > 1 && (
                 <select
-                  value={profile.active_mode || profile.role}
+                  value={profile.active_mode || "dashboard"}
                   onChange={async (e) => {
                     const mode = e.target.value;
+                    const { data } = await supabase.auth.getUser();
+                    if (!data?.user) return;
 
                     await supabase
                       .from("profiles")
                       .update({ active_mode: mode })
-                      .eq("user_id", (await supabase.auth.getUser()).data.user?.id);
+                      .eq("user_id", data.user.id);
 
-                    window.location.reload();
+                    router.replace(
+                      routeByActiveMode(profile.role, mode)
+                    );
                   }}
                   className="border px-2 py-1 rounded text-xs bg-[var(--bg)]"
                 >
                   {ROLE_CAPABILITIES[profile.role].map((m) => (
                     <option key={m} value={m}>
-                      {m.toUpperCase()} MODE
+                      {m.toUpperCase()}
                     </option>
                   ))}
                 </select>
               )}
 
-              {/* ROLE + LAST LOGIN */}
+              {/* ROLE INFO */}
               <div className="text-right leading-tight">
                 <span className="text-xs font-medium text-[var(--primary)] capitalize">
-                  {profile.role} / {profile.active_mode}
+                  {profile.role} · {profile.active_mode}
                 </span>
                 {lastLogin && (
                   <div className="text-[10px] text-[var(--muted)]">
@@ -189,10 +192,10 @@ export default function Navbar() {
                 )}
               </div>
 
-              {/* LOGOUT (RED) */}
+              {/* 🔴 FULL RED LOGOUT */}
               <button
                 onClick={logout}
-                className="text-sm text-red-600 border border-red-300 px-3 py-1.5 rounded hover:bg-red-50 transition"
+                className="bg-red-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-red-700 transition"
               >
                 Logout
               </button>

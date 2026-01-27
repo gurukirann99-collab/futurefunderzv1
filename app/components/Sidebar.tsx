@@ -15,19 +15,20 @@ export default function Sidebar() {
 
   useEffect(() => {
     const loadRole = async () => {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
+      // ✅ STABLE AUTH CHECK
+      const { data } = await supabase.auth.getUser();
 
-      if (!session) {
+      if (!data?.user) {
         router.replace("/auth/login");
         return;
       }
 
+      const userId = data.user.id;
+
       const { data: profile, error } = await supabase
         .from("profiles")
         .select("role")
-        .eq("user_id", session.user.id) // ✅ FIXED
+        .eq("user_id", userId)
         .single();
 
       if (error || !profile?.role) {
@@ -49,7 +50,7 @@ export default function Sidebar() {
 
   return (
     <aside className="w-64 bg-[var(--bg)] border-r border-[var(--border)] fixed inset-y-0 left-0 flex flex-col">
-      {/* Brand */}
+      {/* BRAND */}
       <div className="px-6 py-5 border-b border-[var(--border)]">
         <h2 className="text-lg font-bold tracking-tight text-[var(--text)]">
           FutureFunderz
@@ -59,7 +60,7 @@ export default function Sidebar() {
         </p>
       </div>
 
-      {/* Main Navigation */}
+      {/* MAIN NAV */}
       <nav className="flex-1 px-4 py-6 space-y-2 text-sm">
         {config.main.map((item) => {
           const active =
@@ -72,7 +73,7 @@ export default function Sidebar() {
               href={item.href}
               className={`flex items-center gap-3 px-3 py-2 rounded-md transition ${
                 active
-                  ? "bg-[rgba(99,102,241,0.15)] text-[var(--primary)] font-medium"
+                  ? "bg-[var(--primary)]/15 text-[var(--primary)] font-medium"
                   : "text-[var(--muted)] hover:bg-[var(--card)] hover:text-[var(--text)]"
               }`}
             >
@@ -83,7 +84,7 @@ export default function Sidebar() {
         })}
       </nav>
 
-      {/* Secondary Navigation */}
+      {/* SECONDARY NAV */}
       {config.secondary && (
         <div className="px-4 py-4 border-t border-[var(--border)] text-sm space-y-2">
           {config.secondary.map((item) => (

@@ -1,26 +1,28 @@
 "use client";
 
 import { ReactNode, useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import Sidebar from "./Sidebar";
 
 type Props = {
   children: ReactNode;
-  allowedRole: string;
+  allowedRole?: string;
 };
 
 export default function RoleLayout({ children, allowedRole }: Props) {
   const router = useRouter();
+  const pathname = usePathname();
+
   const [loading, setLoading] = useState(true);
+  const [role, setRole] = useState<string | null>(null);
 
   useEffect(() => {
-    const checkRole = async () => {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
+    const check = async () => {
+      const { data, error } = await supabase.auth.getUser();
 
-      if (!session) {
+      // ❌ truly NOT logged in
+      if (error || !data?.user) {
         router.replace("/auth/login");
         return;
       }
@@ -28,19 +30,30 @@ export default function RoleLayout({ children, allowedRole }: Props) {
       const { data: profile } = await supabase
         .from("profiles")
         .select("role")
-        .eq("id", session.user.id)
+        .eq("user_id", data.user.id)
         .single();
 
-      if (!profile || profile.role !== allowedRole) {
+      // ❌ profile missing or role missing
+      if (!profile || !profile.role) {
         router.replace("/role");
         return;
       }
 
+      setRole(profile.role);
       setLoading(false);
     };
 
-    checkRole();
-  }, [router, allowedRole]);
+    check();
+  }, [router]);
+
+  useEffect(() => {
+    if (loading) return;
+
+    // ❌ role restricted and mismatch
+    if (allowedRole && role !== allowedRole) {
+      router.replace("/dashboard");
+    }
+  }, [loading, role, allowedRole, router]);
 
   if (loading) return null;
 

@@ -5,7 +5,24 @@ import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
+/* ===============================
+   TYPES
+=============================== */
+
 type Stage = "exploration" | "focus" | "execution";
+
+type CourseProgressRow = {
+  progress: number;
+  course: {
+    title: string;
+  } | null;
+};
+
+const LEVEL_SCORE: Record<string, number> = {
+  basic: 0.4,
+  intermediate: 0.7,
+  advanced: 1,
+};
 
 export default function StudentDashboard() {
   const router = useRouter();
@@ -17,16 +34,21 @@ export default function StudentDashboard() {
   const [careerReadiness, setCareerReadiness] = useState(0);
   const [missingSkills, setMissingSkills] = useState<string[]>([]);
 
-  const [course, setCourse] = useState<any>(null);
+  const [course, setCourse] = useState<{ title: string; progress: number } | null>(null);
   const [jobs, setJobs] = useState<any[]>([]);
 
   useEffect(() => {
     const load = async () => {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
+      /* ===============================
+         AUTH (STABLE)
+      =============================== */
+      const { data } = await supabase.auth.getUser();
+      if (!data?.user) {
+        router.replace("/auth/login");
+        return;
+      }
 
-      if (!session) return router.replace("/auth/login");
+      const userId = data.user.id;
 
       /* ===============================
          CAREER STAGE
@@ -34,7 +56,7 @@ export default function StudentDashboard() {
       const { data: assessment } = await supabase
         .from("student_assessments")
         .select("career_clarity, career_id")
-        .eq("user_id", session.user.id)
+        .eq("user_id", userId)
         .order("created_at", { ascending: false })
         .limit(1)
         .single();
@@ -48,26 +70,23 @@ export default function StudentDashboard() {
       setCareerId(assessment.career_id);
 
       /* ===============================
-         COURSE IN PROGRESS
+         COURSE IN PROGRESS (TYPED)
       =============================== */
       const { data: progress } = await supabase
         .from("course_progress")
         .select(`
           progress,
-          courses:course_id (
-            title
-          )
+          course:course_id ( title )
         `)
-        .eq("user_id", session.user.id)
+        .eq("user_id", userId)
         .eq("status", "in_progress")
-        .limit(1)
-        .single();
+        .single<CourseProgressRow>();
 
-      if (progress && progress.courses && progress.courses.length > 0) {
-       setCourse({
-        title: progress.courses[0].title,
-        progress: progress.progress,
-       });
+      if (progress?.course) {
+        setCourse({
+          title: progress.course.title,
+          progress: progress.progress,
+        });
       }
 
       /* ===============================
@@ -81,8 +100,8 @@ export default function StudentDashboard() {
 
         const { data: learned } = await supabase
           .from("student_skills")
-          .select("skill_id,level")
-          .eq("user_id", session.user.id);
+          .select("skill_id, level")
+          .eq("user_id", userId);
 
         let score = 0;
         let missing: string[] = [];
@@ -93,9 +112,7 @@ export default function StudentDashboard() {
             missing.push(r.skill_id);
             return;
           }
-          if (s.level === "advanced") score += 1;
-          else if (s.level === "intermediate") score += 0.7;
-          else score += 0.4;
+          score += LEVEL_SCORE[s.level] ?? 0.4;
         });
 
         const readiness =
@@ -123,7 +140,7 @@ export default function StudentDashboard() {
   }, [router]);
 
   if (loading) {
-    return <p className="p-8 text-[var(--muted)]">Loading dashboard...</p>;
+    return <p className="p-8 text-[var(--muted)]">Loading dashboard…</p>;
   }
 
   const nextAction =
@@ -139,7 +156,9 @@ export default function StudentDashboard() {
 
         {/* HEADER */}
         <div>
-          <h1 className="text-2xl font-bold">Welcome back 👋</h1>
+          <h1 className="text-2xl font-bold text-[var(--text)]">
+            Welcome back 👋
+          </h1>
           <p className="text-sm text-[var(--muted)]">
             Career → Skills → Opportunities
           </p>
@@ -150,14 +169,18 @@ export default function StudentDashboard() {
 
           {/* LEFT */}
           <Card>
-            <h3 className="font-semibold">Career Readiness</h3>
+            <h3 className="font-semibold text-[var(--text)]">
+              Career Readiness
+            </h3>
 
             <p
-              className={`text-3xl font-bold mt-2 ${
-                careerReadiness >= 70
-                  ? "text-green-600"
-                  : "text-orange-600"
-              }`}
+              className="text-3xl font-bold mt-2"
+              style={{
+                color:
+                  careerReadiness >= 70
+                    ? "var(--success, #16a34a)"
+                    : "var(--warning, #ea580c)",
+              }}
             >
               {careerReadiness}%
             </p>
@@ -170,7 +193,8 @@ export default function StudentDashboard() {
 
             <Link
               href={`/student/skill-gap/${careerId}`}
-              className="block mt-4 text-center text-sm bg-[var(--accent)]/20 text-[var(--accent)] rounded-lg py-2"
+              className="block mt-4 text-center text-sm rounded-lg py-2
+                         bg-[var(--accent)]/15 text-[var(--accent)]"
             >
               View Skill Gaps →
             </Link>
@@ -181,7 +205,9 @@ export default function StudentDashboard() {
 
             {course && (
               <Card>
-                <h3 className="font-semibold">Continue Learning</h3>
+                <h3 className="font-semibold text-[var(--text)]">
+                  Continue Learning
+                </h3>
                 <p className="text-sm text-[var(--muted)]">
                   {course.title}
                 </p>
@@ -190,7 +216,9 @@ export default function StudentDashboard() {
 
                 <Link
                   href="/student/learning/progress"
-                  className="inline-block mt-4 bg-[var(--primary)] text-white px-4 py-2 rounded-lg text-sm"
+                  className="inline-block mt-4
+                             bg-[var(--primary)] text-white
+                             px-4 py-2 rounded-lg text-sm"
                 >
                   Resume →
                 </Link>
@@ -198,7 +226,9 @@ export default function StudentDashboard() {
             )}
 
             <Card>
-              <h3 className="font-semibold">Career Path</h3>
+              <h3 className="font-semibold text-[var(--text)]">
+                Career Path
+              </h3>
               <div className="flex gap-3 mt-3 overflow-x-auto">
                 <PathStep label="Explore" done />
                 <PathStep label="Skills" active={stage === "focus"} />
@@ -210,12 +240,19 @@ export default function StudentDashboard() {
           {/* RIGHT */}
           <div className="space-y-6">
             <Card>
-              <h3 className="font-semibold">Job Matches</h3>
+              <h3 className="font-semibold text-[var(--text)]">
+                Job Matches
+              </h3>
               <ul className="mt-3 space-y-2 text-sm">
                 {jobs.map((job) => (
                   <li key={job.id} className="flex justify-between">
                     {job.title}
-                    <Link href={`/student/work/jobs/${job.id}`}>→</Link>
+                    <Link
+                      href={`/student/work/jobs/${job.id}`}
+                      className="text-[var(--primary)]"
+                    >
+                      →
+                    </Link>
                   </li>
                 ))}
               </ul>
@@ -228,7 +265,9 @@ export default function StudentDashboard() {
               </p>
               <Link
                 href="/mentor/request"
-                className="block mt-4 bg-white text-[var(--primary)] text-center py-2 rounded-lg font-medium"
+                className="block mt-4 bg-white
+                           text-[var(--primary)]
+                           text-center py-2 rounded-lg font-medium"
               >
                 Talk to Mentor →
               </Link>
@@ -240,7 +279,9 @@ export default function StudentDashboard() {
         <div className="text-center pt-6">
           <Link
             href={nextAction.href}
-            className="inline-block bg-[var(--primary)] text-white px-8 py-3 rounded-xl"
+            className="inline-block
+                       bg-[var(--primary)] text-white
+                       px-8 py-3 rounded-xl"
           >
             {nextAction.label}
           </Link>
@@ -255,7 +296,9 @@ export default function StudentDashboard() {
 function Card({ children, className = "" }: any) {
   return (
     <div
-      className={`bg-[var(--card)] border border-[var(--border)] rounded-2xl p-5 shadow-sm ${className}`}
+      className={`bg-[var(--card)]
+                  border border-[var(--border)]
+                  rounded-2xl p-5 shadow-sm ${className}`}
     >
       {children}
     </div>
@@ -264,7 +307,7 @@ function Card({ children, className = "" }: any) {
 
 function ProgressBar({ value }: { value: number }) {
   return (
-    <div className="w-full bg-gray-200 rounded-full h-2 mt-3">
+    <div className="w-full bg-[var(--border)] rounded-full h-2 mt-3">
       <div
         className="bg-[var(--primary)] h-2 rounded-full"
         style={{ width: `${value}%` }}
@@ -288,11 +331,11 @@ function PathStep({
     <div
       className={`px-4 py-2 rounded-lg text-sm ${
         done
-          ? "bg-green-100 text-green-700"
+          ? "bg-[var(--success)]/15 text-[var(--success)]"
           : active
-          ? "bg-blue-100 text-blue-700"
+          ? "bg-[var(--primary)]/15 text-[var(--primary)]"
           : future
-          ? "bg-gray-100 text-gray-500"
+          ? "bg-[var(--border)] text-[var(--muted)]"
           : ""
       }`}
     >

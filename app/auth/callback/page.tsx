@@ -19,8 +19,8 @@ function CallbackInner() {
         return;
       }
 
-      const { error } =
-        await supabase.auth.exchangeCodeForSession(code);
+      // 1️⃣ Exchange magic link code
+      const { error } = await supabase.auth.exchangeCodeForSession(code);
 
       if (error) {
         console.error("Auth callback error:", error.message);
@@ -28,6 +28,16 @@ function CallbackInner() {
         return;
       }
 
+      // 2️⃣ WAIT for user to be available (CRITICAL)
+      const { data } = await supabase.auth.getUser();
+
+      if (!data?.user) {
+        // very rare, but safe fallback
+        router.replace("/auth/login");
+        return;
+      }
+
+      // 3️⃣ Go to role / post-login router
       router.replace("/role");
     };
 
@@ -36,7 +46,7 @@ function CallbackInner() {
 
   return (
     <div className="min-h-screen flex items-center justify-center">
-      <p>Signing you in...</p>
+      <p>Signing you in…</p>
     </div>
   );
 }
@@ -46,7 +56,7 @@ export default function AuthCallbackPage() {
     <Suspense
       fallback={
         <div className="min-h-screen flex items-center justify-center">
-          <p>Finalizing login...</p>
+          <p>Finalizing login…</p>
         </div>
       }
     >
