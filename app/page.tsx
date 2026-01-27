@@ -1,116 +1,278 @@
 "use client";
 
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { supabase } from "@/lib/supabase";
 import Link from "next/link";
+import { motion } from "framer-motion";
+import { useEffect, useRef, useState } from "react";
 
-export default function LandingPage() {
-  const router = useRouter();
+/* =====================================================
+   COUNT UP ONLY WHEN USER SCROLLS NEAR CTA
+===================================================== */
+function useCountUpOnView(target: number) {
+  const [count, setCount] = useState(0);
+  const ref = useRef<HTMLDivElement | null>(null);
 
-  // 🔥 AUTH GUARD FOR LANDING PAGE
   useEffect(() => {
-    const checkAuth = async () => {
-      const { data } = await supabase.auth.getUser();
+    if (!ref.current) return;
 
-      if (data?.user) {
-        router.replace("/dashboard"); // or /auth/post-login
-      }
-    };
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry.isIntersecting) return;
 
-    checkAuth();
-  }, [router]);
+        let current = 0;
+        const step = Math.ceil(target / 40);
+
+        const interval = setInterval(() => {
+          current += step;
+          if (current >= target) {
+            current = target;
+            clearInterval(interval);
+          }
+          setCount(current);
+        }, 30);
+
+        observer.disconnect();
+      },
+      { threshold: 0.75 }
+    );
+
+    observer.observe(ref.current);
+    return () => observer.disconnect();
+  }, [target]);
+
+  return { ref, count };
+}
+
+/* =====================================================
+   PAGE
+===================================================== */
+export default function LandingPage() {
+  return (
+    <main className="bg-[var(--bg)] text-[var(--text)] overflow-x-hidden">
+
+      {/* ================= HERO ================= */}
+      <section className="relative bg-gradient-to-r from-[var(--primary)] to-[var(--accent)] text-white">
+        <div
+          className="absolute inset-0 opacity-20"
+          style={{
+            backgroundImage:
+              "radial-gradient(circle at 1px 1px, white 1px, transparent 0)",
+            backgroundSize: "18px 18px",
+          }}
+        />
+        <div className="relative max-w-6xl mx-auto px-6 py-20 text-center space-y-4">
+          <h1 className="text-4xl md:text-5xl font-bold">
+            Education → Skills → Income
+          </h1>
+          <p className="text-lg opacity-90 max-w-3xl mx-auto">
+            Built for students, parents, professionals, and founders in India.
+          </p>
+          <Link
+            href="/guidance/explore"
+            className="inline-block bg-white text-[var(--primary)]
+                       px-8 py-3 rounded-xl font-semibold hover:opacity-90"
+          >
+            Start from where you are
+          </Link>
+        </div>
+      </section>
+
+      {/* ================= LIFE PATH (CENTERED) ================= */}
+      <section className="py-24">
+        <h2 className="text-3xl font-bold text-center mb-12">
+          Your life journey
+        </h2>
+
+        <div className="flex gap-6 overflow-x-auto pb-6
+                        px-[calc(50vw-130px)]
+                        snap-x snap-mandatory scrollbar-hide">
+          <LifeCard
+            icon="🏫"
+            title="School"
+            desc="Environment, safety, teachers, facilities"
+            links={[{ label: "Explore schools", href: "/admissions/schools" }]}
+          />
+          <LifeCard
+            icon="🎓"
+            title="College"
+            desc="Degrees, ROI, placements, outcomes"
+            links={[{ label: "Explore colleges", href: "/admissions/colleges" }]}
+          />
+          <LifeCard
+            icon="📘"
+            title="Skills"
+            desc="Job & business aligned skills"
+            links={[{ label: "Browse courses", href: "/courses" }]}
+          />
+          <LifeCard
+            icon="💼"
+            title="Jobs & Income"
+            desc="Internships, jobs, salary growth"
+            links={[{ label: "Find jobs", href: "/jobs" }]}
+          />
+        </div>
+      </section>
+
+      {/* ================= PARENTS ================= */}
+      <section className="py-24 bg-[var(--card)]">
+        <div className="max-w-6xl mx-auto px-6">
+          <h2 className="text-2xl font-semibold mb-10">
+            Designed for Indian parents
+          </h2>
+
+          <div className="grid md:grid-cols-4 gap-6">
+            {[
+              { icon: "📍", text: "5km neighbourhood schools" },
+              { icon: "👩‍🏫", text: "Teacher credibility & stability" },
+              { icon: "⚽", text: "Playground & facilities" },
+              { icon: "👪", text: "Parent & community feedback" },
+            ].map((item) => (
+              <motion.div
+                key={item.text}
+                whileHover={{ y: -6 }}
+                className="bg-[var(--bg)] border border-[var(--border)]
+                           rounded-2xl p-6 space-y-2"
+              >
+                <div className="text-2xl">{item.icon}</div>
+                <div className="text-sm">{item.text}</div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ================= FOUNDER JOURNEY (TRAIN) ================= */}
+      <section className="py-24">
+        <h2 className="text-2xl font-semibold text-center mb-12">
+          Founder journey
+        </h2>
+
+        <div className="overflow-hidden">
+          <motion.div
+            className="flex gap-6 px-6"
+            animate={{ x: ["0%", "-50%"] }}
+            transition={{ repeat: Infinity, duration: 25, ease: "linear" }}
+          >
+            {FOUNDER_STEPS.concat(FOUNDER_STEPS).map((step, i) => (
+              <div
+                key={i}
+                className="min-w-[240px] bg-[var(--primary)]
+                           text-white rounded-2xl p-6 text-center shadow"
+              >
+                <div className="text-xs opacity-80 mb-2">
+                  STEP {(i % FOUNDER_STEPS.length) + 1}
+                </div>
+                <div className="font-medium">{step}</div>
+              </div>
+            ))}
+          </motion.div>
+        </div>
+      </section>
+
+      {/* ================= METRICS (TRIGGER ON SCROLL) ================= */}
+      <section className="py-24 bg-[var(--card)]">
+        <div className="max-w-6xl mx-auto px-6 grid md:grid-cols-4 gap-6">
+          <Metric label="Skills aligned to jobs" value={500} suffix="+" />
+          <Metric label="Career paths mapped" value={120} suffix="+" />
+          <Metric label="Institutions onboarded" value={50} suffix="+" />
+          <Metric label="India-first design" value={100} suffix="%" />
+        </div>
+      </section>
+
+      {/* ================= CTA ================= */}
+      <section className="py-28 text-center">
+        <h2 className="text-3xl font-bold mb-4">
+          Wherever you are, there is a next step.
+        </h2>
+        <p className="text-[var(--muted)] mb-6">
+          Start with clarity. Move with confidence.
+        </p>
+        <Link
+          href="/guidance/explore"
+          className="inline-block bg-[var(--primary)]
+                     text-white px-10 py-4 rounded-xl font-medium"
+        >
+          Begin your journey →
+        </Link>
+      </section>
+
+    </main>
+  );
+}
+
+/* =====================================================
+   COMPONENTS
+===================================================== */
+
+const FOUNDER_STEPS = [
+  "Idea validation",
+  "Skill building",
+  "Business registration",
+  "Early revenue",
+  "Funding & scale",
+  "Hiring & growth",
+];
+
+function LifeCard({
+  icon,
+  title,
+  desc,
+  links,
+}: {
+  icon: string;
+  title: string;
+  desc: string;
+  links: { label: string; href: string }[];
+}) {
+  return (
+    <motion.div
+      whileHover={{ y: -8 }}
+      className="group min-w-[260px] snap-center
+                 bg-[var(--card)] border border-[var(--border)]
+                 rounded-2xl p-6 space-y-3"
+    >
+      <div className="text-3xl">{icon}</div>
+      <h3 className="text-lg font-semibold">{title}</h3>
+      <p className="text-sm text-[var(--muted)]">{desc}</p>
+
+      <div className="pt-2 space-y-1 opacity-0
+                      group-hover:opacity-100 transition">
+        {links.map((l) => (
+          <Link
+            key={l.href}
+            href={l.href}
+            className="block text-sm text-[var(--primary)]"
+          >
+            {l.label} →
+          </Link>
+        ))}
+      </div>
+    </motion.div>
+  );
+}
+
+function Metric({
+  label,
+  value,
+  suffix,
+}: {
+  label: string;
+  value: number;
+  suffix: string;
+}) {
+  const { ref, count } = useCountUpOnView(value);
 
   return (
-    <main className="bg-[var(--bg)] min-h-screen">
-      {/* HERO */}
-      <section className="max-w-6xl mx-auto px-6 pt-20 pb-16">
-        <div className="text-center max-w-3xl mx-auto space-y-6">
-          <h1 className="text-4xl font-bold text-[var(--text)] leading-tight">
-            Not sure what to do next?
-            <br />
-            <span className="text-[var(--primary)]">
-              We help you move forward.
-            </span>
-          </h1>
-
-          <p className="text-lg text-[var(--muted)]">
-            Whether you’re confused about your career, learning skills,
-            or finding opportunities — FutureFunderz guides you step by step.
-          </p>
-
-          <Link
-            href="/guidance/explore"
-            className="inline-block bg-[var(--primary)] text-white px-10 py-4 rounded-xl text-lg font-medium hover:opacity-90 transition"
-          >
-            Get started
-          </Link>
-        </div>
-      </section>
-
-      {/* JOURNEY CARDS */}
-      <section className="max-w-6xl mx-auto px-6 pb-20">
-        <div className="grid md:grid-cols-3 gap-6">
-          {[1, 2, 3].map((n) => (
-            <div
-              key={n}
-              className="bg-[var(--card)] rounded-2xl shadow-sm p-6 space-y-4 border-t-4 border-[var(--primary)]"
-            >
-              <div className="text-[var(--primary)] text-2xl font-bold">
-                {String(n).padStart(2, "0")}
-              </div>
-
-              <h3 className="text-xl font-semibold text-[var(--text)]">
-                {n === 1 && "Understand yourself"}
-                {n === 2 && "Build the right skills"}
-                {n === 3 && "Apply to opportunities"}
-              </h3>
-
-              <p className="text-sm text-[var(--muted)]">
-                {n === 1 &&
-                  "Get clarity on where you are, what interests you, and what direction makes sense — without pressure."}
-                {n === 2 &&
-                  "Focus only on skills that actually help you grow, practice with real projects, and gain confidence."}
-                {n === 3 &&
-                  "Move into internships, projects, and entry-level jobs when you’re ready — not before."}
-              </p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* REASSURANCE CARD */}
-      <section className="max-w-4xl mx-auto px-6 pb-20">
-        <div className="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-8 text-center space-y-4">
-          <h2 className="text-2xl font-semibold text-[var(--text)]">
-            This is not another course platform.
-          </h2>
-          <p className="text-[var(--muted)]">
-            We don’t force decisions, sell false promises, or overwhelm you.
-            You move forward only when you’re ready.
-          </p>
-        </div>
-      </section>
-
-      {/* FINAL CTA */}
-      <section className="max-w-4xl mx-auto px-6 pb-24">
-        <div className="bg-[var(--primary)] rounded-2xl p-10 text-center space-y-6 text-white">
-          <h2 className="text-3xl font-semibold">
-            Take the first step today
-          </h2>
-
-          <p className="opacity-90">
-            No pressure. No confusion. Just guidance.
-          </p>
-
-          <Link
-            href="/guidance/explore"
-            className="inline-block bg-white text-[var(--primary)] px-8 py-3 rounded-lg font-medium hover:opacity-90"
-          >
-            Start exploring
-          </Link>
-        </div>
-      </section>
-    </main>
+    <div
+      ref={ref}
+      className="bg-[var(--bg)] border border-[var(--border)]
+                 rounded-2xl p-6 text-center"
+    >
+      <div className="text-3xl font-bold text-[var(--primary)]">
+        {count}{suffix}
+      </div>
+      <div className="text-sm text-[var(--muted)] mt-1">
+        {label}
+      </div>
+    </div>
   );
 }
