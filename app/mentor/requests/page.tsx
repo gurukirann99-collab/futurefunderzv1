@@ -27,7 +27,7 @@ export default function MentorRequestsPage() {
       } = await supabase.auth.getSession();
 
       if (!session) {
-        router.push("/login");
+        router.push("/auth/login");
         return;
       }
 

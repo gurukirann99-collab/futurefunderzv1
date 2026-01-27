@@ -6,7 +6,7 @@ export async function requireAdmin(router: any) {
   } = await supabase.auth.getSession();
 
   if (!session) {
-    router.push("/login");
+    router.push("/auth/login");
     return null;
   }
 
@@ -17,7 +17,7 @@ export async function requireAdmin(router: any) {
     .single();
 
   if (profile?.role !== "admin") {
-    router.push("/dashboard");
+    router.push("/role");
     return null;
   }
 

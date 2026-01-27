@@ -22,7 +22,7 @@ export default function MentorProfilePage() {
       } = await supabase.auth.getSession();
 
       if (!session) {
-        router.push("/login");
+        router.push("/auth/login");
         return;
       }
 
@@ -33,7 +33,7 @@ export default function MentorProfilePage() {
         .single();
 
       if (profile?.role !== "mentor") {
-        router.push("/dashboard");
+        router.push("/mentor/dashboard");
         return;
       }
 

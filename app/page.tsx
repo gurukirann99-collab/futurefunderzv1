@@ -22,7 +22,7 @@ export default function LandingPage() {
           </p>
 
           <Link
-            href="/explore"
+            href="/guidance/explore"
             className="inline-block bg-[var(--primary)] text-white px-10 py-4 rounded-xl text-lg font-medium hover:opacity-90 transition"
           >
             Get started
@@ -86,7 +86,7 @@ export default function LandingPage() {
           </p>
 
           <Link
-            href="/explore"
+            href="/guidance/explore"
             className="inline-block bg-white text-[var(--primary)] px-8 py-3 rounded-lg font-medium hover:opacity-90"
           >
             Start exploring

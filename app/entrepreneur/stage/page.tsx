@@ -119,7 +119,7 @@ export default function EntrepreneurStagePage() {
           {loading ? "Saving..." : "Continue"}
         </button>
 
-        <BackButton fallback="/dashboard" />
+        <BackButton fallback="/entrepreneur/dashboard" />
       </div>
     </div>
   );

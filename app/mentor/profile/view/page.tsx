@@ -16,7 +16,7 @@ export default function ViewMentorProfilePage() {
       } = await supabase.auth.getSession();
 
       if (!session) {
-        router.push("/login");
+        router.push("/auth/login");
         return;
       }
 
@@ -93,7 +93,7 @@ export default function ViewMentorProfilePage() {
         </Link>
 
         <button
-          onClick={() => router.push("/dashboard")}
+          onClick={() => router.push("/mentor/dashboard")}
           className="w-full mt-2 border border-[var(--border)] py-2 rounded hover:bg-[var(--card)]"
         >
           Back to Dashboard

@@ -15,7 +15,7 @@ function CallbackInner() {
       const code = params.get("code");
 
       if (!code) {
-        router.replace("/login");
+        router.replace("/auth/login");
         return;
       }
 
@@ -24,11 +24,11 @@ function CallbackInner() {
 
       if (error) {
         console.error("Auth callback error:", error.message);
-        router.replace("/login");
+        router.replace("/auth/login");
         return;
       }
 
-      router.replace("/dashboard");
+      router.replace("/role");
     };
 
     handle();

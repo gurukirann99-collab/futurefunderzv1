@@ -1,0 +1,47 @@
+"use client";
+
+import { supabase } from "@/lib/supabase";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+
+export default function MentorDashboard() {
+  const router = useRouter();
+
+  useEffect(() => {
+    const checkRole = async () => {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
+      if (!session) {
+        router.replace("/auth/login");
+        return;
+      }
+
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("role")
+        .eq("user_id", session.user.id)
+        .maybeSingle();
+
+      if (profile?.role !== "mentor") {
+        router.replace("/mentor/dashboard");
+        return;
+      }
+    };
+
+    checkRole();
+  }, [router]);
+
+  return (
+    <div className="min-h-screen bg-[var(--bg)] p-8 text-[var(--text)]">
+      <h1 className="text-2xl font-bold">
+        Mentor Dashboard
+      </h1>
+
+      <p className="text-sm text-[var(--muted)] mt-1">
+        Mentor features will appear here.
+      </p>
+    </div>
+  );
+}

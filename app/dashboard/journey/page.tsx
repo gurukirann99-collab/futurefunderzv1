@@ -13,7 +13,6 @@ export default function MyJourneyPage() {
   const router = useRouter();
 
   const [history, setHistory] = useState<JourneyItem[]>([]);
-  const [role, setRole] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -23,24 +22,23 @@ export default function MyJourneyPage() {
       } = await supabase.auth.getSession();
 
       if (!session) {
-        router.push("/login");
+        router.replace("/auth/login");
         return;
       }
 
-      const { data: profile } = await supabase
+      // ✅ FIX: profiles PK is `id`
+      const { data: profile, error } = await supabase
         .from("profiles")
         .select("role")
-        .eq("user_id", session.user.id)
+        .eq("id", session.user.id)
         .single();
 
-      if (!profile?.role) {
-        router.push("/dashboard");
+      if (error || !profile?.role) {
+        router.replace("/role");
         return;
       }
 
-      setRole(profile.role);
-
-      let journeyData: JourneyItem[] | null = null;
+      let journeyData: JourneyItem[] = [];
 
       if (profile.role === "student") {
         const { data } = await supabase
@@ -50,10 +48,9 @@ export default function MyJourneyPage() {
           .order("created_at", { ascending: false })
           .limit(3);
 
-        journeyData = data;
-      }
-
-      if (profile.role === "entrepreneur") {
+        journeyData = data || [];
+      } 
+      else if (profile.role === "entrepreneur") {
         const { data } = await supabase
           .from("entrepreneur_stage_history")
           .select("stage, created_at")
@@ -61,27 +58,28 @@ export default function MyJourneyPage() {
           .order("created_at", { ascending: false })
           .limit(3);
 
-        journeyData = data;
-      }
-
-      if (profile.role === "mentor") {
-        router.push("/dashboard");
+        journeyData = data || [];
+      } 
+      else {
+        // mentor / parent / partner → not applicable
+        router.replace("/role");
         return;
       }
 
-      setHistory(journeyData || []);
+      setHistory(journeyData);
       setLoading(false);
     };
 
     loadJourney();
   }, [router]);
 
-  if (loading)
+  if (loading) {
     return (
       <p className="p-6 bg-[var(--bg)] text-[var(--muted)]">
         Loading your journey...
       </p>
     );
+  }
 
   return (
     <div className="min-h-screen bg-[var(--bg)] p-6 space-y-4 text-[var(--text)]">

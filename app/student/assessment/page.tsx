@@ -143,7 +143,7 @@ export default function StudentAssessmentPage() {
           {loading ? "Submitting..." : "Submit Assessment"}
         </button>
 
-        <BackButton fallback="/dashboard" />
+        <BackButton fallback="/student/dashboard" />
       </div>
     </div>
   );

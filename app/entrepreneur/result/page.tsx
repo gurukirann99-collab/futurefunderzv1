@@ -60,7 +60,7 @@ export default function EntrepreneurResultPage() {
       } = await supabase.auth.getSession();
 
       if (!session) {
-        router.push("/login");
+        router.push("/auth/login");
         return;
       }
 
@@ -127,7 +127,7 @@ export default function EntrepreneurResultPage() {
         </div>
 
         <button
-          onClick={() => router.push("/dashboard")}
+          onClick={() => router.push("/entrepreneur/dashboard")}
           className="w-full mt-4 border border-[var(--border)] py-2 rounded hover:bg-[var(--card)]"
         >
           Back to Dashboard

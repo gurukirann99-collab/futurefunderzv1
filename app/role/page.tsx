@@ -4,12 +4,19 @@ import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
+type Role =
+  | "student"
+  | "parent"
+  | "partner"
+  | "entrepreneur"
+  | "mentor";
+
 export default function RolePage() {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const check = async () => {
+    const checkSession = async () => {
       const {
         data: { session },
       } = await supabase.auth.getSession();
@@ -22,32 +29,51 @@ export default function RolePage() {
       setLoading(false);
     };
 
-    check();
+    checkSession();
   }, [router]);
 
-  const selectRole = async (
-    role: "student" | "entrepreneur" | "mentor"
-  ) => {
+  const selectRole = async (role: Role) => {
     const {
       data: { session },
     } = await supabase.auth.getSession();
 
     if (!session) return;
 
+    // IMPORTANT: profiles PK is `id`, not `user_id`
     await supabase
       .from("profiles")
       .update({ role })
-      .eq("user_id", session.user.id);
+      .eq("id", session.user.id);
 
-    router.push("/dashboard");
+    // Role-based redirect
+    switch (role) {
+      case "student":
+        router.push("/student/dashboard");
+        break;
+      case "parent":
+        router.push("/parent/dashboard");
+        break;
+      case "partner":
+        router.push("/partner/dashboard");
+        break;
+      case "entrepreneur":
+        router.push("/entrepreneur/dashboard");
+        break;
+      case "mentor":
+        router.push("/mentor/dashboard");
+        break;
+      default:
+        router.push("/");
+    }
   };
 
-  if (loading)
+  if (loading) {
     return (
       <p className="p-8 bg-[var(--bg)] text-[var(--muted)]">
         Loading...
       </p>
     );
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-[var(--bg)] px-4">
@@ -61,13 +87,34 @@ export default function RolePage() {
         </p>
 
         <div className="space-y-4">
+
           <button
             onClick={() => selectRole("student")}
             className="w-full border border-[var(--border)] rounded-xl p-4 text-left hover:bg-[var(--bg)] transition"
           >
             🎓 Student
             <p className="text-sm text-[var(--muted)]">
-              Learn skills, work on projects, apply for jobs
+              Learn skills, internships, jobs
+            </p>
+          </button>
+
+          <button
+            onClick={() => selectRole("parent")}
+            className="w-full border border-[var(--border)] rounded-xl p-4 text-left hover:bg-[var(--bg)] transition"
+          >
+            👨‍👩‍👧 Parent
+            <p className="text-sm text-[var(--muted)]">
+              Track child progress & education decisions
+            </p>
+          </button>
+
+          <button
+            onClick={() => selectRole("partner")}
+            className="w-full border border-[var(--border)] rounded-xl p-4 text-left hover:bg-[var(--bg)] transition"
+          >
+            🤝 Partner
+            <p className="text-sm text-[var(--muted)]">
+              Institutes, NGOs, training partners
             </p>
           </button>
 
@@ -77,7 +124,7 @@ export default function RolePage() {
           >
             🚀 Entrepreneur
             <p className="text-sm text-[var(--muted)]">
-              Build a business (coming soon)
+              Build startups & access funding (soon)
             </p>
           </button>
 
@@ -87,9 +134,10 @@ export default function RolePage() {
           >
             🧠 Mentor
             <p className="text-sm text-[var(--muted)]">
-              Guide learners (coming soon)
+              Guide students & founders
             </p>
           </button>
+
         </div>
       </div>
     </div>

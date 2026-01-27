@@ -17,7 +17,7 @@ export function useRequireAuth() {
       } = await supabase.auth.getSession();
 
       if (!session) {
-        router.push(`/login?redirect=${pathname}`);
+        router.push(`/auth/login?redirect=${pathname}`);
         return;
       }
 

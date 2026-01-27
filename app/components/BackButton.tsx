@@ -1,6 +1,7 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
+import { useEffect } from "react";
 
 type BackButtonProps = {
   fallback?: string;
@@ -8,17 +9,31 @@ type BackButtonProps = {
 };
 
 export default function BackButton({
-  fallback = "/dashboard",
+  fallback = "/role",
   label = "← Back",
 }: BackButtonProps) {
   const router = useRouter();
+  const pathname = usePathname();
+
+  // Track last REAL page
+  useEffect(() => {
+    const prev = sessionStorage.getItem("lastPage");
+
+    if (prev !== pathname) {
+      sessionStorage.setItem("lastPage", pathname);
+    }
+  }, [pathname]);
 
   const goBack = () => {
-    if (window.history.length > 1) {
-      router.back();
-    } else {
-      router.push(fallback);
+    const lastPage = sessionStorage.getItem("lastPage");
+
+    // If last page is same as current → loop detected
+    if (!lastPage || lastPage === pathname) {
+      router.replace(fallback);
+      return;
     }
+
+    router.back();
   };
 
   return (
