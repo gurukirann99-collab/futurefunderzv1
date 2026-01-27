@@ -1,8 +1,26 @@
 "use client";
 
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { supabase } from "@/lib/supabase";
 import Link from "next/link";
 
 export default function LandingPage() {
+  const router = useRouter();
+
+  // 🔥 AUTH GUARD FOR LANDING PAGE
+  useEffect(() => {
+    const checkAuth = async () => {
+      const { data } = await supabase.auth.getUser();
+
+      if (data?.user) {
+        router.replace("/dashboard"); // or /auth/post-login
+      }
+    };
+
+    checkAuth();
+  }, [router]);
+
   return (
     <main className="bg-[var(--bg)] min-h-screen">
       {/* HERO */}

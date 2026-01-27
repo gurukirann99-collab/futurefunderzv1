@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { supabase } from "@/lib/supabase";
-import { ROLE_MODES } from "@/lib/modeConfig";
+import { ROLE_CAPABILITIES } from "@/lib/modeConfig";
 
 type Profile = {
   role: string;
@@ -154,7 +154,7 @@ export default function Navbar() {
               </Link>
 
               {/* MODE SWITCH (ONLY IF MULTIPLE MODES) */}
-              {ROLE_MODES[profile.role]?.length > 1 && (
+              {ROLE_CAPABILITIES[profile.role]?.length > 1 && (
                 <select
                   value={profile.active_mode || profile.role}
                   onChange={async (e) => {
@@ -169,7 +169,7 @@ export default function Navbar() {
                   }}
                   className="border px-2 py-1 rounded text-xs bg-[var(--bg)]"
                 >
-                  {ROLE_MODES[profile.role].map((m) => (
+                  {ROLE_CAPABILITIES[profile.role].map((m) => (
                     <option key={m} value={m}>
                       {m.toUpperCase()} MODE
                     </option>
