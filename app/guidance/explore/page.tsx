@@ -1,61 +1,184 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { Suspense } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 
-export default function ExplorePage() {
+/* ================= INNER CONTENT ================= */
+function GuidanceExploreContent() {
+  const params = useSearchParams();
   const router = useRouter();
+  const domain = params.get("domain");
 
-  const options = [
-    {
-      label: "🎓 Build my career",
-      desc: "I want clarity, direction, and a long-term path",
-      href: "/guidance/intent?goal=career",
-    },
-    {
-      label: "📘 Start learning",
-      desc: "I want to learn skills right now",
-      href: "/guidance/intent?goal=learning",
-    },
-    {
-      label: "💼 Find work",
-      desc: "I’m looking for projects, internships, or jobs",
-      href: "/guidance/intent?goal=work",
-    },
-    {
-      label: "🤔 I’m confused",
-      desc: "I don’t know what to do next",
-      href: "/guidance/intent?goal=confused",
-    },
-  ];
+  function go(nextDomain: string) {
+    router.push(`/guidance/discovery?domain=${nextDomain}`);
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-[var(--bg)] px-4">
-      <div className="max-w-md w-full space-y-6 text-center bg-[var(--card)] border border-[var(--border)] p-6 rounded-2xl shadow">
-        <h1 className="text-2xl font-bold text-[var(--text)]">
-          Explore FutureFunderz
-        </h1>
+      <div
+        className="max-w-md w-full bg-[var(--card)]
+                   border border-[var(--border)]
+                   p-6 rounded-2xl shadow space-y-6"
+      >
 
-        <p className="text-sm text-[var(--muted)]">
-          Tell us what you’re here for. We’ll guide you step by step.
-        </p>
+        {/* ================= HERO ENTRY ================= */}
+        {!domain && (
+          <>
+            <h1 className="text-2xl font-bold text-center">
+              What do you want clarity on?
+            </h1>
 
-        <div className="space-y-4 text-left">
-          {options.map((item) => (
-            <button
-              key={item.href}
-              onClick={() => router.push(item.href)}
-              className="w-full border border-[var(--border)] rounded-xl p-4 hover:bg-[var(--bg)] transition"
-            >
-              <div className="font-medium text-[var(--text)]">
-                {item.label}
-              </div>
-              <p className="text-sm text-[var(--muted)]">
-                {item.desc}
-              </p>
-            </button>
-          ))}
-        </div>
+            <p className="text-sm text-[var(--muted)] text-center">
+              Choose one. We’ll guide you step by step.
+            </p>
+
+            <Option label="🏫 School admissions" onClick={() => go("schools")} />
+            <Option label="🎓 College decisions" onClick={() => go("colleges")} />
+            <Option label="💼 Career / jobs" onClick={() => go("jobs")} />
+            <Option label="📘 Skills to learn" onClick={() => go("skills")} />
+            <Option
+              label="🤔 I’m confused, need counselling"
+              onClick={() => router.push("/guidance/confused")}
+            />
+          </>
+        )}
+
+        {/* ================= DOMAIN ENTRY ================= */}
+        {domain === "schools" && (
+          <>
+            <h1 className="text-xl font-bold text-center">
+              What about schools do you need clarity on?
+            </h1>
+
+            <Option
+              label="🏫 Which school is best for my child"
+              onClick={() => go("schools")}
+            />
+            <Option
+              label="📋 Admission chances & process"
+              onClick={() => go("schools")}
+            />
+            <Option
+              label="🤔 I need a counsellor"
+              onClick={() =>
+                router.push("/guidance/confused?domain=schools")
+              }
+            />
+          </>
+        )}
+
+        {domain === "colleges" && (
+          <>
+            <h1 className="text-xl font-bold text-center">
+              What about colleges do you need clarity on?
+            </h1>
+
+            <Option
+              label="🎓 Choosing the right college"
+              onClick={() => go("colleges")}
+            />
+            <Option
+              label="📊 Compare ROI & placements"
+              onClick={() => go("colleges")}
+            />
+            <Option
+              label="🌍 Study abroad vs India"
+              onClick={() => go("colleges")}
+            />
+            <Option
+              label="🤔 I need a counsellor"
+              onClick={() =>
+                router.push("/guidance/confused?domain=colleges")
+              }
+            />
+          </>
+        )}
+
+        {domain === "jobs" && (
+          <>
+            <h1 className="text-xl font-bold text-center">
+              What about careers do you need clarity on?
+            </h1>
+
+            <Option
+              label="💼 Roles that suit me"
+              onClick={() => go("jobs")}
+            />
+            <Option
+              label="📈 Growth & salary paths"
+              onClick={() => go("jobs")}
+            />
+            <Option
+              label="🔁 Career switch"
+              onClick={() => go("jobs")}
+            />
+            <Option
+              label="🤔 I need a counsellor"
+              onClick={() =>
+                router.push("/guidance/confused?domain=jobs")
+              }
+            />
+          </>
+        )}
+
+        {domain === "skills" && (
+          <>
+            <h1 className="text-xl font-bold text-center">
+              What about skills do you need clarity on?
+            </h1>
+
+            <Option
+              label="📘 Skills for jobs"
+              onClick={() => go("skills")}
+            />
+            <Option
+              label="🚀 Skills for business"
+              onClick={() => go("skills")}
+            />
+            <Option
+              label="🤔 I need a counsellor"
+              onClick={() =>
+                router.push("/guidance/confused?domain=skills")
+              }
+            />
+          </>
+        )}
+
       </div>
     </div>
+  );
+}
+
+/* ================= SUSPENSE WRAPPER ================= */
+export default function GuidanceExplorePage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="p-10 text-center text-[var(--muted)]">
+          Loading guidance…
+        </div>
+      }
+    >
+      <GuidanceExploreContent />
+    </Suspense>
+  );
+}
+
+/* ================= OPTION ================= */
+function Option({
+  label,
+  onClick,
+}: {
+  label: string;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      className="w-full text-left border border-[var(--border)]
+                 rounded-xl p-4 hover:bg-[var(--bg)] transition"
+    >
+      {label}
+    </button>
   );
 }

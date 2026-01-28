@@ -3,48 +3,58 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
-import { routeByActiveMode } from "@/lib/routeByActiveMode";
 
 export default function PostLoginRedirect() {
   const router = useRouter();
 
   useEffect(() => {
-    const redirectUser = async () => {
-      const { data, error } = await supabase.auth.getUser();
-
-      if (error || !data?.user) {
+    const run = async () => {
+      const { data } = await supabase.auth.getUser();
+      if (!data?.user) {
         router.replace("/auth/login");
         return;
       }
 
+      const userId = data.user.id;
+      const intent = localStorage.getItem("intent");
+
       const { data: profile } = await supabase
         .from("profiles")
-        .select("role, onboarding_completed, active_mode")
-        .eq("user_id", data.user.id)
+        .select("role, onboarding_completed")
+        .eq("user_id", userId)
         .single();
 
-      // No role yet
-      if (!profile || !profile.role) {
+      // 🧠 AUTO ROLE FROM INTENT
+      if (!profile?.role && intent) {
+        let role = "student";
+
+        if (intent === "explore_schools") role = "parent";
+        if (intent === "explore_entrepreneur") role = "entrepreneur";
+
+        await supabase
+          .from("profiles")
+          .update({ role })
+          .eq("user_id", userId);
+
+        router.replace("/onboarding");
+        return;
+      }
+
+      // Normal flow
+      if (!profile?.role) {
         router.replace("/role");
         return;
       }
 
-      // Onboarding not completed
       if (!profile.onboarding_completed) {
         router.replace("/onboarding");
         return;
       }
 
-      // 🔥 Intelligent redirect
-      const target = routeByActiveMode(
-        profile.role,
-        profile.active_mode
-      );
-
-      router.replace(target);
+      router.replace("/");
     };
 
-    redirectUser();
+    run();
   }, [router]);
 
   return <p className="p-6">Redirecting…</p>;
