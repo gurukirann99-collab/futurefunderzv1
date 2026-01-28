@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { supabase } from "@/lib/supabase";
 import { useEffect, useState, useRef } from "react";
 import {
   School,
@@ -27,6 +28,10 @@ export default function LandingPage() {
             Schools, colleges, skills, careers, and jobs —
             connected into one guided system.
           </p>
+      
+          <div className="absolute top-6 right-6">
+  </div>
+
 
           {/* HERO CTA = GUIDED ENTRY */}
           <Link
